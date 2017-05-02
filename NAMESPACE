@@ -1,0 +1,5 @@
+useDynLib(EMMIXcontrasts, .registration = TRUE)
+export("eq8.wire","wj2.permuted","pvalue.wire",
+"wire.init.fit","wire.init.reg",
+"emmixwire","scores.wire","tau.estep.wire")
+importFrom("stats", "coef", "kmeans", "lm", "resid")

@@ -1,0 +1,13 @@
+Package: EMMIXcontrasts
+Title: Contrasts in Mixed Effects for EMMIX Model with Random Effects
+Description: For forming contrasts in the mixed effects for mixtures of linear mixed models fitted to the gene profiles. 
+Version: 1.0.2
+Author: Angus Ng, Geoff McLachlan, Kui Wang.
+Maintainer: Kui Wang <k.wang@uq.edu.au>
+License: GPL-2 | GPL-3
+LazyLoad: yes
+Packaged: 2014-02-23 01:21:23 UTC; Sam
+NeedsCompilation: yes
+Repository: CRAN
+Date/Publication: 2014-02-23 08:05:59
+RoxygenNote: 6.0.1
