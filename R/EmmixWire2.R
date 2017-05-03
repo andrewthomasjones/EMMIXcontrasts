@@ -6,7 +6,7 @@
 
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {		
-obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts",
+obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
 	as.double(dat),as.integer(n),as.integer(m),as.integer(g),
 	as.double(pro),as.double(mu),as.double(sigma),
 	mtauk=double(n*g),double(g),loglik=double(1),
