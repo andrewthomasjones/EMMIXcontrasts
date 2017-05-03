@@ -10,14 +10,4 @@ There was 1 NOTE:
 
 *New submission
 
-Package was archived on CRAN
 
-Possibly mis-spelled words in DESCRIPTION:
-  EMMIX (2:39)
-
-CRAN repository db overrides:
-  X-CRAN-Comment: Archived on 2017-04-24 as check errors were not
-    corrected despite reminders
-
-Check errors were finally corrected.
- 

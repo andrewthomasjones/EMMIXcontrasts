@@ -1,4 +1,4 @@
-EMMIXcontrasts 1.0.2
+EMMIXcontrasts2 0.0.1
 =============
 
-FORTRAN code check issues resolved
+New submission

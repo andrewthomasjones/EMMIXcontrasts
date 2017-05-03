@@ -1,4 +1,4 @@
-useDynLib(EMMIXcontrasts, .registration = TRUE)
+useDynLib(EMMIXcontrasts2, .registration = TRUE)
 export("eq8.wire","wj2.permuted","pvalue.wire",
 "wire.init.fit","wire.init.reg",
 "emmixwire","scores.wire","tau.estep.wire")
