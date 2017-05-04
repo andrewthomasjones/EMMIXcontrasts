@@ -106,9 +106,9 @@ sigma[h*p*p+k*p+j]  += (y[j*n+i]-mu[h*p+j])*(y[k*n+i]-mu[h*p+k])*tau[h*n+i];
 	  if(sumtau[h] < two)
         sigma[h*p*p+j*p+i] =zero;
 	  else
-	    sigma[h*p*p+j*p+i]=sigma[h*p*p+j*p+i]/sumtau[h];
+	      sigma[h*p*p+j*p+i]=sigma[h*p*p+j*p+i]/sumtau[h];
 	  
-	    sigma[h*p*p+i*p+j]=sigma[h*p*p+j*p+i];}
+	  sigma[h*p*p+i*p+j]=sigma[h*p*p+j*p+i];}
 }
 }  
 // end of loop (h)
