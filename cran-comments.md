@@ -8,6 +8,8 @@ There were no ERRORs or WARNINGs.
 
 There was 1 NOTE:
 
-*New submission
+*Days since last update: 2
+
+Major error became apparent after first submission. 
 
 

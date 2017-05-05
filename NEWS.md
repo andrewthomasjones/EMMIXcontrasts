@@ -1,4 +1,4 @@
-EMMIXcontrasts2 0.0.1
+EMMIXcontrasts2 0.1.2
 =============
 
-New submission
+Integer arthimetic bug fixed
