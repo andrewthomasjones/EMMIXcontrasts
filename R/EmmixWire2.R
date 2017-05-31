@@ -5,7 +5,10 @@
 #E-step
 
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
-{		
+{
+  print(paste("dat","pro","mu","msigma","n","m","g",sep='    '))
+  print(dat,pro,mu,msigma,n,m,g,sep='  ')
+  
 obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
 	as.double(dat),as.integer(n),as.integer(m),as.integer(g),
 	as.double(pro),as.double(mu),as.double(sigma),
@@ -99,7 +102,8 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 			warning("empty cluster found!")
 			next
 		}
-	}
+	}     
+
         ooo <- tau.estep.wire(dat,pro,mu,msigma,n,m,g)
 	loglik <- ooo$loglik
 	sigma.e<-matrix(0,ncol=g,nrow=qe)
