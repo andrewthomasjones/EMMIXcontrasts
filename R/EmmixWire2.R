@@ -7,8 +7,9 @@
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
 
-  print(paste("dat","pro","mu","msigma","n","m","g",sep='    '))
+  print(paste("dat","pro","mu","sigma","n","m","g",sep='    '))
   print(dat,pro,mu,sigma,n,m,g,sep='  ')
+
 
   
 obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
