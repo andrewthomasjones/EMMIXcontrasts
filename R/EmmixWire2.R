@@ -7,6 +7,7 @@
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
 
+
   print(paste0("pro :", pro),na.print="NA")
   print(paste0("mu :", mu),na.print="NA")
   print(paste0("sigma :", sigma),na.print="NA")
@@ -14,7 +15,6 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
   print(paste0("m :", m),na.print="NA")
   print(paste0("g :", g),na.print="NA")
   
-
 
 
   
@@ -30,43 +30,43 @@ list(tau=tau,loglik=obj$loglik,pro=colMeans(tau))
 
 wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
 {
-wire.init.km<-function(dat,X,qe,n,m,g)
-{
-cluster<-rep(1,n)		
-if(g>1)
-cluster<- kmeans(dat,g,nstart=5)$cluster
-wire.init.reg(dat,X,qe,n,m,g,cluster)
-}	
-wire.init.rd<-function(dat,X,qe,n,m,g)
-{
-cluster<-rep(1,n)		
-if(g>1)
-cluster<- sample(1:g,n,replace=TRUE)
-wire.init.reg(dat,X,qe,n,m,g,cluster)
-}
-	
-found<-NULL
-found$loglik<--Inf
-	
-if(nkmeans>0) {
-for(j in 1:nkmeans)
-{	
-initobj<-try(wire.init.km(dat,X,qe,n,m,g))		
-if(length(initobj)>=4)
-if(initobj$loglik>found$loglik)
-found<-initobj			
-} #end of loop
-}
-if(nrandom>0) {
-for(j in 1:nrandom)
-{
-	initobj<-try(wire.init.rd(dat,X,qe,n,m,g))			
-	if(length(initobj)>=4)
-	if(initobj$loglik>found$loglik)
-	found<-initobj
-} #end of loop
-}
-found
+  wire.init.km<-function(dat,X,qe,n,m,g)
+  {
+    cluster<-rep(1,n)		
+    if(g>1)
+    cluster<- kmeans(dat,g,nstart=5)$cluster
+    wire.init.reg(dat,X,qe,n,m,g,cluster)
+  }	
+  wire.init.rd<-function(dat,X,qe,n,m,g)
+  {
+    cluster<-rep(1,n)		
+    if(g>1)
+    cluster<- sample(1:g,n,replace=TRUE)
+    wire.init.reg(dat,X,qe,n,m,g,cluster)
+  }
+  	
+  found<-NULL
+  found$loglik<--Inf
+  	
+  if(nkmeans>0) {
+    for(j in 1:nkmeans)
+    {	
+      initobj<-try(wire.init.km(dat,X,qe,n,m,g))		
+      if(length(initobj)>=4)
+      if(initobj$loglik>found$loglik)
+      found<-initobj			
+    } #end of loop
+  }
+  if(nrandom>0) {
+  for(j in 1:nrandom)
+  {
+  	initobj<-try(wire.init.rd(dat,X,qe,n,m,g))			
+  	if(length(initobj)>=4)
+  	if(initobj$loglik>found$loglik)
+  	found<-initobj
+  } #end of loop
+  }
+  found
 }
 
 wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
