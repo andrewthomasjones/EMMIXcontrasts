@@ -8,7 +8,9 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
 
   print(paste("dat","pro","mu","sigma","n","m","g",sep='    '))
+
   print(dat,pro,mu,sigma,n,m,g,sep='  ', na.print="NA")
+
 
 
   
