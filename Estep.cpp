@@ -78,13 +78,13 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
     arma::vec mu_i = mu.col(i);
     arma::mat sigma_i = sigma.slice(i);
     arma::vec dens = mvn_norm(dat, mu_i, sigma_i);
-    tau.row(i)  = pro.at(i)*dens.t();
+    tau.row(i)  = pro.at(i) * dens.t();
   }
   
   tau2 = tau.each_row() / sum(tau,0);
   
   
-  s_tau = sum(tau,1);
+  s_tau = sum(tau2,1);
   pi = s_tau/n;
   
   

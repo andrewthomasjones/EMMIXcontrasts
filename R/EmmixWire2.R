@@ -8,7 +8,7 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
   
   test<-estep(dat, n, m,  g, pro, mu, sigma)
-  
+  #print(test$pro)
   
   
 obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
@@ -19,9 +19,11 @@ obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
 	if(obj$error) stop("error")
 	tau <- array(obj$mtauk,c(n,g))
 	
-	# print(test$pro)
-	# print(colMeans(tau))
-  return(list(tau=tau,loglik=obj$loglik,pro=colMeans(tau)))		
+	print(test$pro)
+	
+	ret<-list(tau=tau,loglik=obj$loglik,pro=colMeans(tau))
+	print(ret$pro)
+  return(ret)		
 }
 
 wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
