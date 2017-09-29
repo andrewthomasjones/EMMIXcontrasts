@@ -6,17 +6,10 @@
 
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
-
-
-  print(paste0("pro :", pro),na.print="NA")
-  print(paste0("mu :", mu),na.print="NA")
-  print(paste0("sigma :", sigma),na.print="NA")
-  print(paste0("n :", n),na.print="NA")
-  print(paste0("m :", m),na.print="NA")
-  print(paste0("g :", g),na.print="NA")
   
-
-
+  test<-estep(dat, n, m,  g, pro, mu, sigma)
+  
+  
   
 obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
 	as.double(dat),as.integer(n),as.integer(m),as.integer(g),
@@ -25,7 +18,10 @@ obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
 	error = integer(1))[8:11] 
 	if(obj$error) stop("error")
 	tau <- array(obj$mtauk,c(n,g))
-list(tau=tau,loglik=obj$loglik,pro=colMeans(tau))		
+	
+	# print(test$pro)
+	# print(colMeans(tau))
+  return(list(tau=tau,loglik=obj$loglik,pro=colMeans(tau)))		
 }
 
 wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
