@@ -25,13 +25,6 @@ Rcpp::NumericVector export_vec(arma::vec y)
   return tmp;
 }
 
-Rcpp::NumericVector export_mat(arma::mat y)
-{
-  Rcpp::NumericMatrix tmp = Rcpp::wrap(y) ;
-  tmp.attr("dim") = R_NilValue;
-  return(tmp) ;
-}
-
 
 Rcpp::NumericVector export_uvec(arma::uvec y)
 {
@@ -54,7 +47,7 @@ arma::vec mvn_norm(arma::mat dat, arma::vec mu_i, arma::mat sigma_i){
   
   
   for(int i=0; i<n; i++){
-    arma::mat test = diff.row(i) *sigma_inv* diff_t.col(i);
+    mh.at(i) =  as_scalar(diff.row(i) *sigma_inv* diff_t.col(i));
   }
 
   dens = arma::exp(-0.5*mh);
@@ -72,7 +65,7 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   arma::mat tau2(g,n, arma::fill::zeros);
   
   //arma::mat tau = mtauk;
-  double LL = 0;
+  
   
   for(int i=0;i<g;i++){
     arma::vec mu_i = mu.col(i);
@@ -87,11 +80,36 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   s_tau = sum(tau2,1);
   pi = s_tau/n;
   
-  
-  
+  arma::vec LL = arma::zeros<arma::vec>(1);
+  for(int i=0;i<g;i++){
+    
+    arma::vec mu_i = mu.col(i);
+    arma::mat sigma_i = sigma.slice(i);
+    arma::mat tmp =(mvn_norm(dat, mu_i, sigma_i));
+    
+    arma::mat tmp2 = arma::log(tmp);
+    
+    tmp2.replace(arma::datum::nan, 0);
+    tmp2.replace(arma::datum::inf, 0);
+
+    
+    for(int j=0;j<n;j++){
+
+      LL.at(0) += tau2(i,j)*(std::log(pi(i)));
+      LL.at(0) += tau2(i,j)*tmp2(j);
+    }
+    
+  }
+    
+  //LL.print();
+ 
+  if(!LL.is_finite()){
+    LL.at(0) = 0;
+  }
+    
   Rcpp::List ret = List::create(
-    Named("tau")= export_mat(tau2),
-    Named("loglik")= LL,
+    Named("tau")= tau2,
+    Named("loglik")= export_vec(LL),
     Named("pro")= export_vec(pi)
   );
   

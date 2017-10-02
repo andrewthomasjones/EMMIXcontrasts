@@ -7,22 +7,23 @@
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
   
-  test<-estep(dat, n, m,  g, pro, mu, sigma)
-  #print(test$pro)
+
+  ret<-estep(dat, n, m,  g, pro, mu, sigma)
   
+#   print(test$loglik)
+#  
+#   
+# obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
+# 	as.double(dat),as.integer(n),as.integer(m),as.integer(g),
+# 	as.double(pro),as.double(mu),as.double(sigma),
+# 	mtauk=double(n*g),double(g),loglik=double(1),
+# 	error = integer(1))[8:11] 
+# 	if(obj$error) stop("error")
+# 	tau <- array(obj$mtauk,c(n,g))
+# 	
+
+	#ret<-list(tau=tau,loglik=obj$loglik,pro=colMeans(tau))
   
-obj <- .Fortran("estepmvn",PACKAGE="EMMIXcontrasts2",
-	as.double(dat),as.integer(n),as.integer(m),as.integer(g),
-	as.double(pro),as.double(mu),as.double(sigma),
-	mtauk=double(n*g),double(g),loglik=double(1),
-	error = integer(1))[8:11] 
-	if(obj$error) stop("error")
-	tau <- array(obj$mtauk,c(n,g))
-	
-	print(test$pro)
-	
-	ret<-list(tau=tau,loglik=obj$loglik,pro=colMeans(tau))
-	print(ret$pro)
   return(ret)		
 }
 
@@ -44,27 +45,33 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   }
   	
   found<-NULL
-  found$loglik<--Inf
+  found$loglik<- -Inf
   	
   if(nkmeans>0) {
     for(j in 1:nkmeans)
     {	
-      initobj<-try(wire.init.km(dat,X,qe,n,m,g))		
-      if(length(initobj)>=4)
-      if(initobj$loglik>found$loglik)
-      found<-initobj			
-    } #end of loop
+      initobj<-try(wire.init.km(dat,X,qe,n,m,g))	
+      if(class(initobj)!="try-error"){
+          if(initobj$loglik>found$loglik){
+            found<-initobj
+          }
+      }
+    }
+ 
   }
   if(nrandom>0) {
-  for(j in 1:nrandom)
-  {
-  	initobj<-try(wire.init.rd(dat,X,qe,n,m,g))			
-  	if(length(initobj)>=4)
-  	if(initobj$loglik>found$loglik)
-  	found<-initobj
-  } #end of loop
+    for(j in 1:nrandom)
+    {
+    	initobj<-try(wire.init.rd(dat,X,qe,n,m,g))
+    	if(class(initobj)!="try-error"){
+    	  if(initobj$loglik>found$loglik){
+    	    found<-initobj
+    	  }
+    	}
+    	
+    }
   }
-  found
+  return(found)
 }
 
 wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
@@ -111,7 +118,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 		}
 	}     
 
-        ooo <- tau.estep.wire(dat,pro,mu,msigma,n,m,g)
+  ooo <- tau.estep.wire(dat,pro,mu,msigma,n,m,g)
 	loglik <- ooo$loglik
 	sigma.e<-matrix(0,ncol=g,nrow=qe)
 	for(i in 1:qe)
@@ -459,9 +466,9 @@ if(!is.null(init)){
 } else {
 if(is.null(cluster))
 {
-found <- wire.init.fit(dat,X,qe,n,m,g,nkmeans,nrandom)
-} else
-found <- wire.init.reg(dat,X,qe,n,m,g,cluster)
+  found <- wire.init.fit(dat,X,qe,n,m,g,nkmeans,nrandom)
+}else
+  found <- wire.init.reg(dat,X,qe,n,m,g,cluster)
 }
 
 if(length(found)<4)
