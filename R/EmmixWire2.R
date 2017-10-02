@@ -1,9 +1,10 @@
 ### start
 
-
+#' @importFrom stats coef kmeans lm resid
+NULL
 
 #E-step
-
+#'@export
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
   
@@ -26,7 +27,7 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
   
   return(ret)		
 }
-
+#'@export
 wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
 {
   wire.init.km<-function(dat,X,qe,n,m,g)
@@ -73,7 +74,7 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   }
   return(found)
 }
-
+#'@export
 wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 {
 	# set x for regression
@@ -125,7 +126,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 		sigma.e[i,]<-sigma
 	list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk)
 }
-
+#'@export
 emmixwire<-function(dat,g=1,ncov=3,nvcov=1,n1=0,n2=0,n3=0,
 X=NULL,W=NULL,U=NULL,V=NULL,
 cluster=NULL,init=NULL,debug=0,itmax=1000,epsilon=1e-5,nkmeans=5,nrandom=0)
@@ -511,7 +512,7 @@ ret
 
 
 #differentially expressed genes (DEG)---   gene ranking
-
+#'@export
 eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
 {
 omega <- rep(0,g)
@@ -572,7 +573,7 @@ for(h in 1:g)
 }
 sqrt(omega)	
 }
-
+#'@export
 scores.wire <-function(obj,contrast=NULL) 
 {
 if(obj$nb !=2 && obj$nb !=3) 
@@ -606,7 +607,7 @@ c(rowSums(  obj$tau * t(d1d2)))
 # B=99 permutations for class labels
 # when calculate the W_j, only re-do the numerator,
 # but keep the denominator same!
-
+#'@export
 wj2.permuted <- function(data,ret,nB=99,contrast=NULL) {
 
 mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
@@ -736,7 +737,7 @@ wj0[,b] <- (rowSums(  tau * t(d1d2)))
 } #end of B permutations	
 wj0
 }
-
+#'@export
 pvalue.wire <- function(wj,wj0){	
 n0 <- length(wj)
 nn <- length(wj0)
