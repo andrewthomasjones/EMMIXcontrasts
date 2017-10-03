@@ -53,6 +53,9 @@ arma::vec mvn_norm(arma::mat dat, arma::vec mu_i, arma::mat sigma_i){
   dens = arma::exp(-0.5*mh);
   dens *= front;
   
+
+  double tol = std::pow(10.0, -120);
+  std::transform(dens.begin(), dens.end(), dens.begin(), [tol](double x){ return( (x>=tol) ? (x) : (0.0) ); });
   return(dens);
 }
 
@@ -74,9 +77,12 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
     tau.row(i)  = pro.at(i) * dens.t();
   }
   
-  double LL = arma::accu(arma::log(arma::sum(tau,0)));
   
+  double LL = arma::accu(arma::log(arma::sum(tau,0)));
+ 
+
   tau2 = tau.each_row() / arma::sum(tau,0);
+
   
   
   s_tau = sum(tau2,1);
@@ -85,7 +91,7 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   
   
   Rcpp::List ret = List::create(
-    Named("tau")= tau2,
+    Named("tau")= tau2.t(),
     Named("loglik")= LL,
     Named("pro")= export_vec(pi)
   );

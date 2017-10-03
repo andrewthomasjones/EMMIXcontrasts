@@ -1,16 +1,17 @@
 ### start
 
 #' @importFrom stats coef kmeans lm resid
+#' @importFrom MASS ginv
 NULL
 
 #E-step
 #'@export
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
-
-
+  
   ret<-estep(dat, n, m,  g, pro, mu, sigma)
   
+
   return(ret)		
 }
 
@@ -36,7 +37,7 @@ matM.wire<-function(B,C,tau,g,m)
 {
   M<-array(0,dim=c(m,m,g))
   for(h in 1:g)
-    M[,,h]<-solve(B[,,h]+C[,,h]*sum(tau[,h]))
+    M[,,h]<-ginv(B[,,h]+C[,,h]*sum(tau[,h]))
   M
 }
 #--------------------------------------------
@@ -151,7 +152,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   
   VV<-V%*%t(V)
   dw<-diag(t(W)%*%W)
-  xxx<-solve(t(X)%*%X)%*%t(X)
+  xxx<-ginv(t(X)%*%X)%*%t(X)
   
   mu<-matrix(0,ncol=g,nrow=m)
   
@@ -167,12 +168,20 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
       mu[,h]     <- as.vector(X%*%beta[,h])
     }
     
-    print(beta)
+    
+    
     # E-step
     eobj<-tau.estep.wire(dat,oldpro,mu,BC,n,m,g)
     
     pro   <-eobj$pro
+    
+    
+    
     tau   <-eobj$tau
+    
+    
+    
+    
     lk[i] <-eobj$loglik
     sumtau<- colSums(tau)
     M<-matM.wire(B,C,tau,g,m)
@@ -560,6 +569,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   }
   sqrt(omega)	
 }
+
 #'@export
 scores.wire <-function(obj,contrast=NULL) 
 {
@@ -718,27 +728,6 @@ matM.wire<-function(B,C,tau,g,m)
 }
 #--------------------------------------------
 
-eb.estep<-function(tau,y,mu,DU,U,B,C,M,g,n,m,qb)
-{
-  eb1<-array(0,dim=c(n,qb,g))
-  eb2<-array(0,c(g,qb,qb))
-  invB<-array(0,c(m,m,g))
-  
-  for(h in 1:g)
-  {
-    invB[,,h]<-solve(B[,,h])
-    # E(bi|y)
-    
-    eb1[,,h]<-t( DU[,,h]%*%t(U)%*%invB[,,h]%*%(  (t(y)-mu[,h])
-                                                 -c(C[,,h]%*%M[,,h]%*%colSums(t(t(y)-mu[,h])*tau[,h])) ))
-    #E(bi%*%bi^t|y)
-    eb2[h,,]<-( sum(tau[,h])*DU[,,h]-(sum(tau[,h])-1)*DU[,,h]%*%t(U)%*%invB[,,h]%*%U%*%DU[,,h]	
-                -DU[,,h]%*%t(U)%*%M[,,h]%*%U%*%DU[,,h])
-    DU[,,h]<-(eb2[h,,]+ t(eb1[,,h]*tau[,h])%*%eb1[,,h])/sum(tau[,h])
-  }
-  
-  list(DU=DU,eb1=eb1,invB=invB)
-}
 
 
 #---------------------------------
