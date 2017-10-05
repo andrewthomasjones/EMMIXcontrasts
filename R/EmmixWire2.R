@@ -511,6 +511,7 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=1,n1=0,n2=0,n3=0,
 #'@export
 eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
 {
+  
   omega <- rep(0,g)
   if(is.null(contrast)) {
   	if(nb==2) {
@@ -540,6 +541,9 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
          }
   }
   XV <- cbind(X,V)
+  
+
+ 
   for(h in 1:g)
   {
   	# A
@@ -547,19 +551,30 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   	  A <- diag(1/c(W%*%c(sigma.e[,h])))
   	else
   	  A <- diag(1/c(W[,1]*sigma.e[1,h]))
+  	
   	# B	
   	B <- solve(sigma.b[,,h])
-  	# C
-  	C <- (1/sigma.c[h]) * diag(ncol(V))
+  	# C is nvcov = 0 no C
+  	if(!is.null(sigma.c)){
+  	  C <- (1/sigma.c[h]) * diag(ncol(V))
+  	}else{
+  	  C <- 0 * diag(ncol(V))
+  	}
   	# E
   	E <- solve(t(U) %*% A %*% U + B)
   	#XVAU
   	XVAU <- t(XV)%*%(A%*%U)
+  	
+  	
   	# P
   	P <- t(XV) %*% A %*% XV
+  	
   	P[2+1:m,2+1:m] <- P[2+1:m,2+1:m] + C
+  	
   	P <- P - XVAU %*% E %*% t(XVAU)
-  	P <- solve(P)/nh[h]
+  	#P sometimes singular
+  	P <- ginv(P)/nh[h]
+  	
   	#KOK
   	XVAUEK <- XVAU %*% E %*% K2
   	KOK <- (t(K1)-t(XVAUEK)) %*% P %*% K1
