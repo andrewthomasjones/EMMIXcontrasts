@@ -5,7 +5,7 @@
 The function emmixwire fits the data with the specified EMMIX-WIRE model.  
 }
 \usage{
-emmixwire(dat,g=1,ncov=3,nvcov=1,n1=0,n2=0,n3=0,X=NULL,W=NULL,U=NULL,V=NULL,
+emmixwire(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,X=NULL,W=NULL,U=NULL,V=NULL,
 cluster=NULL,init=NULL,debug=0,itmax=1000,epsilon=1e-5,nkmeans=5,nrandom=0)}
 \arguments{
 \item{dat}{The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data}

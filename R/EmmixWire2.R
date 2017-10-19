@@ -15,30 +15,16 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
   return(ret)		
 }
 
-mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
-{
-  A<-B<-C<-BC<-array(0,dim=c(m,m,g))
-  for(h in 1:g)
-  {
-    if(ncol(W)>1)
-      A[,,h]<-diag(as.vector(W%*%sigma.e[,h]))
-    else
-    {
-      A[,,h]<-diag(c(W[,1]*sigma.e[1,h]))
-      
-    }
-    B[,,h]<-A[,,h]+U%*%DU[,,h]%*%t(U)
-    C[,,h]<-sigma.c[h]*VV
-    BC[,,h]<-B[,,h]+C[,,h]
-  }
-  list(A=A,B=B,C=C,BC=BC)
-}
+
 matM.wire<-function(B,C,tau,g,m)
 {
   M<-array(0,dim=c(m,m,g))
-  for(h in 1:g)
-    M[,,h]<-ginv(B[,,h]+C[,,h]*sum(tau[,h]))
-  M
+
+    for(h in 1:g){
+      M[,,h]<-solve(B[,,h]+C[,,h]*sum(tau[,h]))
+    }
+
+  return(M)
 }
 #--------------------------------------------
 
@@ -52,9 +38,10 @@ eb.estep<-function(tau,y,mu,DU,U,B,C,M,g,n,m,qb)
   {
     invB[,,h]<-solve(B[,,h])
     # E(bi|y)
+
+    eb1[,,h]<-t( DU[,,h]%*%t(U)%*%invB[,,h]%*%(  (t(y)-mu[,h])-c(C[,,h]%*%M[,,h]%*%colSums(t(t(y)-mu[,h])*tau[,h])) ))
+
     
-    eb1[,,h]<-t( DU[,,h]%*%t(U)%*%invB[,,h]%*%(  (t(y)-mu[,h])
-                                                 -c(C[,,h]%*%M[,,h]%*%colSums(t(t(y)-mu[,h])*tau[,h])) ))
     #E(bi%*%bi^t|y)
     eb2[h,,]<-( sum(tau[,h])*DU[,,h]-(sum(tau[,h])-1)*DU[,,h]%*%t(U)%*%invB[,,h]%*%U%*%DU[,,h]	
                 -DU[,,h]%*%t(U)%*%M[,,h]%*%U%*%DU[,,h])
@@ -391,8 +378,9 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 		sigma.e[i,]<-sigma
 	list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk)
 }
+
 #'@export
-emmixwire<-function(dat,g=1,ncov=3,nvcov=1,n1=0,n2=0,n3=0,
+emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   X=NULL,W=NULL,U=NULL,V=NULL,
   cluster=NULL,init=NULL,debug=0,itmax=1000,epsilon=1e-5,nkmeans=5,nrandom=0)
   {
@@ -554,6 +542,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   	
   	# B	
   	B <- solve(sigma.b[,,h])
+  	
   	# C is nvcov = 0 no C
   	if(!is.null(sigma.c)){
   	  C <- (1/sigma.c[h]) * diag(ncol(V))
@@ -568,7 +557,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   	
   	# P
   	P <- t(XV) %*% A %*% XV
-  	
+  
   	P[2+1:m,2+1:m] <- P[2+1:m,2+1:m] + C
   	
   	P <- P - XVAU %*% E %*% t(XVAU)
@@ -610,7 +599,18 @@ scores.wire <-function(obj,contrast=NULL)
             +  ( obj$beta[1,] * contrast[1] + obj$beta[2,] * contrast[2]  + obj$beta[3,] * contrast[3] ))/ooo
   }
   # equation 5
-  c(rowSums(  obj$tau * t(d1d2)))
+  #
+  
+  n<-length(obj$cluster)
+  ret<-array(0,n)
+  for(i in seq_len(n)){
+    ret[i]<-t(d1d2)[i,obj$cluster[i]]
+  }
+  
+  ret<-c(rowSums(  obj$tau * t(d1d2)))
+  
+  return(ret)
+  
 }
   
 # permutation and null distribution
@@ -675,8 +675,13 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL) {
   		
   # get new tau		
   mu2    <- mu	
-  for(h in 1:g)	
-  mu2[,h]<- c(X%*%ret$beta[,h]+V%*%ec[,h])
+  for(h in 1:g){
+    if(!is.null(ec[,h])){
+      mu2[,h]<- c(X%*%ret$beta[,h]+V%*%ec[,h])
+    }else{
+      mu2[,h]<- c(X%*%ret$beta[,h])
+    }
+  }
   tau    <- tau.estep.wire(da,ret$pro,mu2,B,n,m,g)$tau		
   		
   ###########################################
@@ -728,19 +733,19 @@ mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
       
     }
     B[,,h]<-A[,,h]+U%*%DU[,,h]%*%t(U)
-    C[,,h]<-sigma.c[h]*VV
-    BC[,,h]<-B[,,h]+C[,,h]
+    
+    if(!is.null(sigma.c[h])){
+      C[,,h]<-sigma.c[h]*VV
+    
+      BC[,,h]<-B[,,h]+C[,,h]
+    }else{
+      BC[,,h]<-B[,,h]
+    }
+    
   }
   list(A=A,B=B,C=C,BC=BC)
 }
 
-matM.wire<-function(B,C,tau,g,m)
-{
-  M<-array(0,dim=c(m,m,g))
-  for(h in 1:g)
-    M[,,h]<-solve(B[,,h]+C[,,h]*sum(tau[,h]))
-  M
-}
 #--------------------------------------------
 
 
