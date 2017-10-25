@@ -1,11 +1,9 @@
-### start
-
+#imports
 #' @importFrom stats coef kmeans lm resid
 #' @importFrom MASS ginv
 NULL
 
 #E-step
-#'@export
 tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
 {
   
@@ -15,7 +13,7 @@ tau.estep.wire<-function(dat,pro,mu,sigma,n,m,g)
   return(ret)		
 }
 
-
+#M-step
 matM.wire<-function(B,C,tau,g,m)
 {
   M<-array(0,dim=c(m,m,g))
@@ -28,6 +26,7 @@ matM.wire<-function(B,C,tau,g,m)
 }
 #--------------------------------------------
 
+#E-Step for B
 eb.estep<-function(tau,y,mu,DU,U,B,C,M,g,n,m,qb)
 {
   eb1<-array(0,dim=c(n,qb,g))
@@ -51,6 +50,7 @@ eb.estep<-function(tau,y,mu,DU,U,B,C,M,g,n,m,qb)
   list(DU=DU,eb1=eb1,invB=invB)
 }
 
+#E-Step for C
 ec.estep<-function(tau,y,mu,sigma.c,V,M,g,n,qc)
 {
   ec1<-array(0,c(qc,g))
@@ -66,6 +66,7 @@ ec.estep<-function(tau,y,mu,sigma.c,V,M,g,n,qc)
   list(ec2=ec2,ec1=ec1)
 }
 
+#E-Step for E
 ee.estep<-function(y,mu,tau,U,V,W,A,invB,M,g,n,m,qe,dw,eb1,ec1)
 {
   ae<-ee<-array(0,dim=c(n,m,g))
@@ -89,38 +90,48 @@ ee.estep<-function(y,mu,tau,U,V,W,A,invB,M,g,n,m,qe,dw,eb1,ec1)
   list(sigma.e=thet,ae=ae)
 }
 
+#returns which cluster allocation (MAP) from tau matrix
 tau2cluster<-function(tau)
 {
   apply(tau,FUN=which.max,MARGIN=1)
 }
 
+
 getcov <-function(msigma,sumtau,n,m,g,ncov)
 {
   sigma<-array(0,c(m,m))
+  
   if( (ncov==1)|(ncov==2))
   {
-    for(h in 1:g)
+    for(h in 1:g){
       sigma<-sigma+sumtau[h]*msigma[,,h]
+    }
     sigma<-as.matrix(sigma/n)
     
-    if(ncov==2)
+    if(ncov==2){
       sigma<-diag(c(diag(sigma)),m)
-    for(h in 1:g)
-      msigma[,,h]=sigma
+      for(h in 1:g){
+        msigma[,,h]=sigma
+      }
+    }
   }
   
   if(m>1)
   {
-    if(ncov==4)
-      for(h in 1:g)
+    if(ncov==4){
+      for(h in 1:g){
         msigma[,,h]<-diag(c(diag(msigma[,,h])),m)
+      }
+    }
       
-      if(ncov==5)
-        for(h in 1:g)
+      if(ncov==5){
+        for(h in 1:g){
           msigma[,,h]<-diag(sum(diag(msigma[,,h]))/m,m)
+        }
+      }
   }
   
-  msigma
+  return(msigma)
 }
 
 # start EMMIX-WIRE analysis from initial values
@@ -143,7 +154,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   
   mu<-matrix(0,ncol=g,nrow=m)
   
-  
+  #main loop
   for(i in 1:itmax)
   {
     mobj<-mat.ABC.wire(U,VV,W,sigma.e,sigma.b,sigma.c,g,m)
@@ -223,13 +234,14 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
     
   } # end of loop 
   
-  if(flag==0) error <- 1
+  if(flag==0){
+    error <- 1
+  }
   
   #get the the final partition
   
   for(h in 1:g) {
-    
-    mu[,h]<-as.vector(X%*%beta[,h]+V%*%obj2$ec1[,h])
+      mu[,h]<-as.vector(X%*%beta[,h]+V%*%obj2$ec1[,h])
   }
   
   eobj2<-tau.estep.wire(dat,pro,mu,B,n,m,g)
@@ -251,10 +263,10 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   BIC<--2*loglik+np*log(n)
   AIC<--2*loglik+np*2
   
-  if(debug)
+  if(debug){
     cat('\n',g,"BIC=",BIC,"AIC=",AIC,
         "\nloglik=",loglik,"np=",np)
-  
+   }
   
   #return values
   
@@ -263,6 +275,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
               pro=pro,beta=beta,sigma.e = sigma.e)
   ret$lk =lk[lk!=0]
   ret$tau=eobj2$tau
+  
   if(ncov==1||ncov==2||ncov==3||ncov==4||ncov==5)
   {
     ret$sigma.b <- sigma.b
@@ -276,7 +289,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   }
   
   #######################
-  ret
+  return(ret)
 }
 
 #'@export
@@ -326,6 +339,7 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   }
   return(found)
 }
+
 #'@export
 wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 {
@@ -374,9 +388,10 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
   ooo <- tau.estep.wire(dat,pro,mu,msigma,n,m,g)
 	loglik <- ooo$loglik
 	sigma.e<-matrix(0,ncol=g,nrow=qe)
-	for(i in 1:qe)
+	for(i in 1:qe){
 		sigma.e[i,]<-sigma
-	list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk)
+	}
+	return(list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk))
 }
 
 #'@export
@@ -393,39 +408,40 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   m<-ncol(dat)
   
   #
-  if(n1 >0 && n2>0 )
-  {
-  if(n3==0) {
-  X<-U<-cbind(rep(c(1,0),c(n1,n2)),rep(c(0,1),c(n1,n2)))
-  } else {
-  X<-U<-cbind(rep(c(1,0,0),c(n1,n2,n3)),rep(c(0,1,0),c(n1,n2,n3)),rep(c(0,0,1),c(n1,n2,n3)))
-  }
-  W <-rep(1,m)
-  V<-diag(m)
-  } else {
+  if(n1 >0 && n2>0 ){
+    if(n3==0){
+      X<-U<-cbind(rep(c(1,0),c(n1,n2)),rep(c(0,1),c(n1,n2)))
+    }else{
+      X<-U<-cbind(rep(c(1,0,0),c(n1,n2,n3)),rep(c(0,1,0),c(n1,n2,n3)),rep(c(0,0,1),c(n1,n2,n3)))
+    }
+    W <-rep(1,m)
+    V<-diag(m)
+  }else{
+    
+    # check the matrix U
+    if(ncov==0){
+      U<- diag(m)
+    }else{
+      if(is.null(U)){
+        U <- cbind(rep(1,m))
+      }
+    }
+    
+    # check the matrix V
+    if(is.null(V) || nvcov==0){
+      V  <- diag(m)
+    }
+    
+    # check the matrix W
+    if(is.null(W)){
+    	W <- cbind(rep(1,m))
+    }
   
-  # check the matrix U
-  if(ncov==0)
-  {
-  U     <- diag(m)
-  } else {
-  if(is.null(U))
-  U <- cbind(rep(1,m))
-  }
-  
-  # check the matrix V
-  if(is.null(V) || nvcov==0)
-  V  <- diag(m)
-  
-  # check the matrix W
-  if(is.null(W))
-  	W <- cbind(rep(1,m))
   }
   
   #
   # check the matrix X
-  if(is.null(X))
-  stop("X must be specified")
+  if(is.null(X)){ stop("X must be specified")}
   
   X<-as.matrix(X);U<-as.matrix(U)
   V<-as.matrix(V);W<-as.matrix(W)
@@ -436,12 +452,12 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   tuv <- 0.2
   # initialize the sigma_b and sigma_c
   sigma.b<-array(0,c(qb,qb,g))
-  for(h in 1:g)
-  {
-  if(qb>1)
-  diag(sigma.b[,,h])<-rep(tuv,qb)
-  else
-  sigma.b[1,1,h] <- tuv
+  for(h in 1:g){
+    if(qb>1){
+      diag(sigma.b[,,h])<-rep(tuv,qb)
+    }else{
+      sigma.b[1,1,h] <- tuv
+    }
   }
   sigma.c<-rep(tuv,g)
   
@@ -456,8 +472,9 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
     found <- wire.init.reg(dat,X,qe,n,m,g,cluster)
   }
   
-  if(length(found)<4)
+  if(length(found)<4){
   	stop("not found inital values")
+  }
   
   #part 2: call the main estimate procedure
   
@@ -467,20 +484,20 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   debug,ncov,nvcov,itmax,epsilon)
   
   
-  if(qb==m && (ncov==4 || ncov==2))
-  {
-  tmp <- array(0,c(m,g))
-  for(h in 1:g)
-  tmp[,h] <- diag(ret$sigma.b[,,h])
-  ret$sigma.b <- tmp
+  if(qb==m && (ncov==4 || ncov==2)){
+    tmp <- array(0,c(m,g))
+    for(h in 1:g){
+      tmp[,h] <- diag(ret$sigma.b[,,h])
+    }
+    ret$sigma.b <- tmp
   }
   
-  if(ncov==5)
-  {
-  tmp <- rep(0,g)
-  for(h in 1:g)
-  tmp[h] <- diag(ret$sigma.b[,,h])[1]
-  ret$sigma.b <- tmp
+  if(ncov==5){
+    tmp <- rep(0,g)
+    for(h in 1:g){
+      tmp[h] <- diag(ret$sigma.b[,,h])[1]
+    }
+    ret$sigma.b <- tmp
   }
   ret$g=g
   ret$m=m
@@ -490,7 +507,7 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   ret$U=U
   ret$V=V
   
-  ret
+  return(ret)
 }
 ######################
 
@@ -574,35 +591,41 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   sqrt(omega)	
 }
 
+
+
 #'@export
 scores.wire <-function(obj,contrast=NULL) 
 {
-  if(obj$nb !=2 && obj$nb !=3) 
-  stop("only two or three classes can be compared.")
+  if(obj$nb !=2 && obj$nb !=3) {
+    stop("only two or three classes can be compared.")
+  }
   
   # get the sqrt KOK 
   ooo <- eq8.wire(obj$m,obj$g,obj$nb, obj$X, obj$W, obj$U, obj$V, obj$sigma.e, obj$sigma.b, obj$sigma.c,colSums( obj$tau),contrast)
   # contrasts
-  if(obj$nb ==2)
-  {
-    if(is.null(contrast))
+  if(obj$nb ==2){
+    if(is.null(contrast)){
       d1d2 = (t(( obj$eb[,1,]- obj$eb[,2,]))+ ( obj$beta[1,]- obj$beta[2,]))/ooo
-    else 
-      d1d2 = (t(( obj$eb[,1,]  * contrast[1] + obj$eb[,2,]  * contrast[2] ))
-             +  ( obj$beta[1,] * contrast[1] + obj$beta[2,] * contrast[2] ))/ooo  
-  } else { 
+    }else{ 
+      d1d2 = (t(( obj$eb[,1,]  * contrast[1] + obj$eb[,2,]  * contrast[2] ))   +  ( obj$beta[1,] * contrast[1] + obj$beta[2,] * contrast[2] ))/ooo  
+    }
+  }else{ 
     
-    if(is.null(contrast))
+    if(is.null(contrast)){
       d1d2 = (t(( obj$eb[,1,]- obj$eb[,3,]))+ ( obj$beta[1,]- obj$beta[3,]))/ooo
-    else 
+    }else{ 
       d1d2 = (t(( obj$eb[,1,] * contrast[1] + obj$eb[,2,]  * contrast[2]  + obj$eb[,3,]  * contrast[3] ))
             +  ( obj$beta[1,] * contrast[1] + obj$beta[2,] * contrast[2]  + obj$beta[3,] * contrast[3] ))/ooo
+    }
   }
+  
+  
   # equation 5
   #
   
   n<-length(obj$cluster)
   ret<-array(0,n)
+  
   for(i in seq_len(n)){
     ret[i]<-t(d1d2)[i,obj$cluster[i]]
   }
@@ -619,7 +642,7 @@ scores.wire <-function(obj,contrast=NULL)
 # when calculate the W_j, only re-do the numerator,
 # but keep the denominator same!
 #'@export
-wj2.permuted <- function(data,ret,nB=99,contrast=NULL) {
+wj2.permuted <- function(data,ret,nB=99,contrast=NULL, seed=1234) {
   
   g  <- ret$g
   X<-as.matrix(ret$X)	
@@ -658,7 +681,7 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL) {
   ooo[is.na(ooo) ] <- 1e+10
   	
   #-------------------------------------	
-  set.seed(1234)
+  set.seed(seed)
   wj0 <- array(0,c(n,nB))
   for(b in 1:nB) { #do B permutation
   da <- data[,sample(1:m,m,replace=FALSE)]	
@@ -687,26 +710,26 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL) {
   ###########################################
   				
   # contrasts
-  if(ret$nb ==2)
-  {
-    if(is.null(contrast))
+  if(ret$nb ==2){
+    if(is.null(contrast)){
       d1d2 = (t(( eb[,1,]- eb[,2,]))+ ( ret$beta[1,]- ret$beta[2,]))/ooo
-    else 
-      d1d2 = (t(( eb[,1,]  * contrast[1] + eb[,2,]  * contrast[2] ))
-             +  ( ret$beta[1,] * contrast[1] + ret$beta[2,] * contrast[2] ))/ooo  
-  } else { 
+    }else{ 
+      d1d2 = (t(( eb[,1,]  * contrast[1] + eb[,2,]  * contrast[2] )) +  ( ret$beta[1,] * contrast[1] + ret$beta[2,] * contrast[2] ))/ooo  
+    }
+  }else{ 
     
-    if(is.null(contrast))
+    if(is.null(contrast)){
       d1d2 = (t(( eb[,1,]- eb[,3,]))+ ( ret$beta[1,]- ret$beta[3,]))/ooo
-    else 
-      d1d2 = (t(( eb[,1,] * contrast[1] + eb[,2,]  * contrast[2]  + eb[,3,]  * contrast[3] ))
+    }else{d1d2 = (t(( eb[,1,] * contrast[1] + eb[,2,]  * contrast[2]  + eb[,3,]  * contrast[3] ))
             +  ( ret$beta[1,] * contrast[1] + ret$beta[2,] * contrast[2]  + ret$beta[3,] * contrast[3] ))/ooo
+    }
   }
+  
   # equation 5
   wj0[,b] <- (rowSums(  tau * t(d1d2)))
   		
   } #end of B permutations	
-  wj0
+  return(wj0)
 }
 
 #'@export
@@ -717,39 +740,27 @@ pvalue.wire <- function(wj,wj0){
   for(j in 1:n0) {
     pv[j] <- sum( abs(c(wj,wj0)) >= abs(wj[j])) /(nn+n0)
   }
-  pv	
+  return(pv)	
 }
+
 
 mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
 {
   A<-B<-C<-BC<-array(0,dim=c(m,m,g))
-  for(h in 1:g)
-  {
-    if(ncol(W)>1)
+  for(h in 1:g){
+    if(ncol(W)>1){
       A[,,h]<-diag(as.vector(W%*%sigma.e[,h]))
-    else
-    {
-      A[,,h]<-diag(c(W[,1]*sigma.e[1,h]))
-      
-    }
-    B[,,h]<-A[,,h]+U%*%DU[,,h]%*%t(U)
-    
-    if(!is.null(sigma.c[h])){
-      C[,,h]<-sigma.c[h]*VV
-    
-      BC[,,h]<-B[,,h]+C[,,h]
     }else{
-      BC[,,h]<-B[,,h]
+      A[,,h]<-diag(c(W[,1]*sigma.e[1,h]))
     }
+  B[,,h]<-A[,,h]+U%*%DU[,,h]%*%t(U)
+  if(!is.null(sigma.c[h])){
+    C[,,h]<-sigma.c[h]*VV
+    BC[,,h]<-B[,,h]+C[,,h]
+  }else{
+    BC[,,h]<-B[,,h]
+  }
     
   }
-  list(A=A,B=B,C=C,BC=BC)
+  return(list(A=A,B=B,C=C,BC=BC))
 }
-
-#--------------------------------------------
-
-
-
-#---------------------------------
-# end of program
-#---------------------------------
