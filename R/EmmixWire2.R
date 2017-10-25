@@ -292,6 +292,34 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   return(ret)
 }
 
+
+
+
+#'@name wire.init.fit
+#'@title Get the initial values
+#'@description The routinnes to  fit mixture models to the data and to obtain  initial partition or initial values. 
+#'@param dat The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data.
+#'@param X The design matrix.
+#'@param n The number of observations.
+#'@param m The number of variables.
+#'@param g The number of components in the mixture model.
+#'@param qe The number of columns of design matrix W.
+#'@param cluster A vector of integers specifying the initial partitions of the data.
+#'@param nkmeans An integer to specify the number of KMEANS partitions to be used to find the best initial values.
+#'@param nrandom An integer to specify the number of random partitions to be used to find the best initial values; the default value is 0.
+#'@param pro A vector of mixing proportions pi.
+#'@param mu A numeric matrix with each column corresponding to the mean.
+#'@param sigma The covaraince m by m by g array.
+#'@details These functions are called internally.
+#'@return A list containing
+  #' \item{pro}{A vector of mixing proportions pi}
+  #' \item{beta}{A numeric matrix with each column corresponding to the mean.}
+  #' \item{sigma.e}{The covaraince of error}
+  #' \item{cluster}{A vector of final partition}
+  #' \item{loglik}{The loglikelihood at convergence}
+  #' \item{lk}{A vector of loglikelihood at each EM iteration}
+#'@seealso \code{\link{emmixwire}}
+#'@keywords cluster datasets
 #'@export
 wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
 {
@@ -393,6 +421,114 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 	}
 	return(list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk))
 }
+
+
+#'@title The EMMIX model with random effects
+#'@description The function emmixwire fits the data with the specified EMMIX-WIRE model.
+
+#'@param dat The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data
+#'@param g The number of components in the mixture model
+#'@param ncov A small integer indicating the type of covariance structure of random item b 
+#'@param nvcov 0 or 1, indicating whether or not to include random item c in the model
+#'@param n1,n2,n3 The number of samples in each class
+#'@param X The design matrix X
+#'@param W The design matrix W
+#'@param U The design matrix U
+#'@param V The design matrix V
+#'@param cluster  A vector of integers specifying the initial partitions of the data; the default is NULL
+#'@param init A list containing the initial parameters for the mixture model. See details. The default value is NULL
+#'@param itmax  A big integer specifying the maximum number of iterations to apply; the default value is 1000
+#'@param epsilon A small number used to stop the EM algorithm loop when the relative difference between log-likelihood at each iteration become sufficient small; the default value is 1e-5
+#'@param nkmeans An integer to specify the number of KMEANS partitions to be used to find the best initial values
+#'@param nrandom An integer to specify the number of random partitions to be used to find the best initial values
+#'@param debug A logical value, if it is TRUE, the output will be printed out; FALSE silent; the default value is TRUE
+
+#'@details  The combination of ncov and nvcov defines the covariance structure  of the random effect item b and c respectively.
+#' For example,when both ncov and nvcov are zeros,it is a mixtue of normal regression model. Specifically, when ncov=0, 
+#'  random effect b is ignored; when ncov=1 or 2, all components share a common covariance of random item b; when ncov=2, 
+#'  the common covariance matrix is diagonal;  when ncov=3 or 4, each component has their own covariance matrix of item b; 
+#'  when ncov=4, the covariance matrices of item b are diagonal;  when ncov=5, the covariance matrices of item b are 
+#'  sigma(h)*I(m)(diagonal scale parameter matrix with same identical diagonal element values).
+
+#'@return A list containing the following:
+#'\item{error}{Error code, 0 = normal exit;  1 = did not converge within \code{itmax} iterations}
+#'\item{loglik}{The log likelihood at convergence}
+#'\item{np}{The total number of parameters}
+#'\item{AIC}{Akaike Information Criterion (AIC) }
+#'\item{BIC}{Bayes Information Criterion (BIC)}
+#'\item{pro}{A vector of mixing proportions}
+#'\item{beta}{A numeric matrix with each column corresponding to the location parameter.}
+#'\item{sigma.e}{The covariance parameters of error item e}
+#'\item{sigma.b}{The covariance parameters of random item b}
+#'\item{sigma.c}{The covariance parameters of random item c}
+#'\item{cluster}{A vector of final partition}
+#'\item{eb}{The conditional expectation of random item b}
+#'\item{ec}{The conditional expectation of random item c}
+#'\item{lk}{A vector of log likelihood at each EM iteration}
+#'\item{tau}{An n by g matrix of posterior probability for each data point}
+#'\item{X}{The design matrix X}
+#'\item{W}{The design matrix W}
+#'\item{U}{The design matrix U}
+#'\item{V}{The design matrix V}
+#'\item{g}{The number of components in the mixture model}
+ 
+#'@seealso \code{\link{scores.wire}}
+
+#'@examples 
+#'  \dontrun{
+#'    data(expr.norm)
+#'    data(mapping.unique)
+#'    
+#'    dat = expr.norm
+#'    map = mapping.unique
+#'    #map= 1: S/C=1, 2535;
+#'    #map=-1: "empties", 10131;
+#'    #map=-2: "mixed", ambiguous, 13, excluded;
+#'    #map> 1: 1331 nonnulls,  S/C > 1.
+#'    
+#'    # in summary, 
+#'    #1331 (9.5 percent) nonnulls;
+#'    #and 
+#'    #12,666 (90.5 percent) true nulls.
+#'    #---------------------
+#'    dat = as.matrix(dat[map>=-1,])
+#'    map = map[map>=-1]
+#'    #---------------------
+#'    
+#'    y  <- log(dat)
+#'    set.seed(123)
+#'    ret <- emmixwire(y,g=3,ncov=3,nvcov=1,n1=3,n2=3,n3=0,
+#'                     debug=0,itmax=1000,epsilon=1e-5,nkmeans=5)
+#'    
+#'    ### alternatively, 
+#'    #X <- U <- cbind(c(1,1,1,0,0,0),c(0,0,0,1,1,1))
+#'    #m<-6   # m is number of columns
+#'    #V<-diag(m)
+#'    #W <-rep(1,m)
+#'    #ret <- emmixwire(y,g=3,ncov=3,nvcov=1,X=X,W=W,U=U,V=V,
+#'    #       debug=0,itmax=1000,epsilon=1e-5,nkmeans=5)
+#'    
+#'    ###calculate the weighted contrast W_j
+#'    wj <- scores.wire(ret)
+#'    names(wj) <- names(map)
+#'    ###top 1000 genes
+#'    wire.1000 <- names(map)[order(abs(wj),decreasing=TRUE)][1:1000]
+#'    ###the number of false non-nulls in the top 1000 genes 
+#'    sum(map[wire.1000]==1) + sum( map[wire.1000]==-1)
+#'    #119
+#'    
+#'    ##alternatively
+#'    ### the null distribution of W_j
+#'    wj0 <- wj2.permuted(y,ret,nB=19)
+#'    pv  <- pvalue.wire(wj,wj0)
+#'    wire.1000 <- names(map)[order(pv,decreasing=0)][1:1000]
+#'    ###the number of false non-nulls in the top 1000 genes 
+#'    sum(map[wire.1000]==1) + sum( map[wire.1000]==-1)
+#'    #119
+#'    hist(pv,50)
+#'    
+#'  }
+
 
 #'@export
 emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
@@ -509,10 +645,25 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   
   return(ret)
 }
-######################
 
-
-#differentially expressed genes (DEG)---   gene ranking
+#'@title Calculate the lambda values
+#'@description This function calculates the lamda values in equation 2.8.
+#'@param m The number of columns in the data
+#'@param g The number of components in the mixture model
+#'@param nb The number of columns in the design matrix X
+#'@param X The design matrix X
+#'@param W The design matrix W
+#'@param U The design matrix U
+#'@param V The design matrix V
+#'@param sigma.e The covariance parameters of error item e
+#'@param sigma.b The covariance parameters of random item b
+#'@param sigma.c The covariance parameters of random item c
+#'@param nh A vector with each element as the number of genes in each cluster
+#'@param contrast The contrast vector, for example, c(1/2,1/2,-1) or c(1,0,-1), etc. 
+#'@details The default contrast for two classes is c(1,-1), and three classes c(1/2,1/2,-1). 
+#'  And it is called by function \code{scores.wire} and \code{wj2.permuted}.
+#'@return A vector of lamda values.
+#'@seealso \code{\link{wj2.permuted}} \code{\link{scores.wire}}
 #'@export
 eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
 {
@@ -593,6 +744,40 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
 
 
 
+
+
+
+
+
+#'@title The weighted contrast
+#'@description This function caculates the weighted contrast W_j in order to find out the most significant dfferentially expressed genes.  
+#'
+#'@param obj The return list of function emmixwire.
+#'@param contrast The vector of the specified contrast.
+#'@details The number of classes of samples is either two or three.
+#'@return The vector of the statistic Wj
+#'@seealso \code{\link{wire.init.fit}} \code{\link{scores.wire}}
+#'@examples
+#'  
+#'\dontrun{
+#'    
+#'    dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\t')
+#'    
+#'    rownames(dat) <- 1:nrow(dat)
+#'    
+#'    ###normalize the rows
+#'    x <- DoRows(dat)
+#'    
+#'    set.seed(12345)
+#'    
+#'    ret <-emmixwire(x,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
+#'                    debug=1,itmax=1000,epsilon=1e-5)
+#'    
+#'    ###calculate the W_j
+#'    wj <- scores.wire(ret,contrast=c(0.5,0.5,-1))
+#'    
+#'  }
+#'@keywords cluster datasets
 #'@export
 scores.wire <-function(obj,contrast=NULL) 
 {
@@ -637,10 +822,42 @@ scores.wire <-function(obj,contrast=NULL)
 }
   
 # permutation and null distribution
-
 # B=99 permutations for class labels
 # when calculate the W_j, only re-do the numerator,
 # but keep the denominator same!
+NULL
+#'@title The null distribution and p-value
+#'@description This function caculates the null distribution and p-values of the weighted contrast W_j. 
+#'@param data The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data
+#'@param ret The return list of function emmixwire
+#'@param nB The number of permutations
+#'@param contrast A two- or three- dimensional vector the contrast(s) for the class differences
+#'@param wj An n-dimensional vector containing the value of the statistic W_j for each gene
+#'@param wj0 An n by nB matrix with its columns as the statistic W_j for each permutation
+#'@param mu An adjustment number, default value is zero.
+#'@details The number of classes of samples is either two or three, and 
+#'the default contrast for two classes is c(1,-1), and three classes c(1,0,-1).
+#'@return An n by nB matrix with its columns as the statistic Wj for each permutation.
+#'@seealso \code{\link{emmixwire}} \code{\link{scores.wire}}.
+#'@examples
+#'  \dontrun{
+#'    
+#'    dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\t')
+#'    rownames(dat) <- 1:nrow(dat)
+#'    set.seed(12345)
+#'    ret <-emmixwire(dat,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
+#'                    debug=1,itmax=1000,epsilon=1e-5)
+#'    
+#'    ###calculate the W_j
+#'    wj <- scores.wire(ret,contrast=c(0.5,0.5,-1))
+#'    
+#'    ### the null distribution of W_j
+#'    wj0 <- wj2.permuted(dat,ret,nB=19)
+#'    ### the p-values of W_j
+#'    pv  <- pvalue.wire(wj,wj0)
+#'    
+#'  }
+#'@keywords cluster datasets
 #'@export
 wj2.permuted <- function(data,ret,nB=99,contrast=NULL, seed=1234) {
   
@@ -764,3 +981,56 @@ mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
   }
   return(list(A=A,B=B,C=C,BC=BC))
 }
+NULL
+#' @title The goldenspike gene expression dataset
+#'
+#' @description A dataset containing the goldenspike data "10a.dat".
+#'
+#' @docType data
+#' @keywords datasets
+#' @name expr.norm
+#' @usage data(expr.norm)
+#' @source http://www2.ccr.buffalo.edu/halfon/spike/spikedownloads.html
+#' @format A data frame with 14010 rows (genes) and 6 variables (samples).
+NULL
+
+#' @title The Hendenfalk breast cancer dataset.
+#' @description These data are column normalized 
+#' @docType data
+#' @keywords datasets
+#' @name hedenlc
+#' @usage data(hedenlc)
+#' @format  This is a 3226 by 15 matrix. The first seven columns are from class I and last eight columns are from class II.  
+#' @examples
+#'  \dontrun{
+#'    data(hedenlc)
+#'    ###
+#'    set.seed(123456)
+#'    obj<-emmixwire(hedenlc,g=5,ncov=3,nvcov=1,n1=7,n2=8,
+#'                   debug=1,itmax=1000,epsilon=1e-4) 
+#'    ### to save the estimation results for later use
+#'    #save(obj,file="ret3.rbin")
+#'    ###reload the results
+#'    #load("ret3.rbin")
+#'    ### calculate the weighted contrasts W_j
+#'    Wj  <- scores.wire(obj)
+#'  }
+NULL
+#' @name mapping.unique
+#' @docType data
+#' @title The map of goldenspike data
+#' @description The map of genes to their S/C values
+#' @usage data(mapping.unique)
+#' @format It is a vector with names = probe set names and values = fold changes, 
+#'   with "-1" depicting probe sets whose target RNAs were not spiked in ("empty"), 
+#'  and "-2" marking "mixed" probe sets. In summary,  
+#'  1:  S/C=1, 2535;
+#'  -1:  "empties", 10131;
+#'  -2:  "mixed", ambiguous, 13, excluded;
+#'  >1: 1331 nonnulls.
+#' @source  http://www2.ccr.buffalo.edu/halfon/spike/spikedownloads.html
+#' @examples 
+#' data(mapping.unique)
+#' @keywords datasets
+NULL
+
