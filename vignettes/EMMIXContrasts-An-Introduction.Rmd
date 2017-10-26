@@ -23,7 +23,7 @@ vignette: >
 
 ## Null-Distribution
 
-## P-values
+## *p*-values
 
 # Experimental design
 
