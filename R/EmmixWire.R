@@ -151,6 +151,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   mu<-matrix(0,ncol=g,nrow=m)
   
   #main EM loop
+  
   for(i in seq_len(itmax))
   {
     mobj<-mat.ABC.wire(U,VV,W,sigma.e,sigma.b,sigma.c,g,m)
@@ -206,10 +207,8 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
     #
     loglik <- lk[i]
     
-    if(debug)
-    {
-      cat('\n',i,'th,loglik=',loglik)
-      
+    if(debug){
+      message('\n',i,'th,loglik=',loglik)
     }
     
     beta   <- nbeta;
@@ -254,7 +253,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   AIC<--2*loglik+np*2
   
   if(debug){
-    cat('\n',g,"BIC=",BIC,"AIC=",AIC,
+    message('\n',g,"BIC=",BIC,"AIC=",AIC,
         "\nloglik=",loglik,"np=",np)
   }
   
@@ -294,7 +293,6 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
 #'@param m The number of variables.
 #'@param g The number of components in the mixture model.
 #'@param qe The number of columns of design matrix W.
-#'@param cluster A vector of integers specifying the initial partitions of the data.
 #'@param nkmeans An integer to specify the number of KMEANS partitions to be used to find the best initial values.
 #'@param nrandom An integer to specify the number of random partitions to be used to find the best initial values; the default value is 0.
 #'@details These functions are called internally.
@@ -355,7 +353,27 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   return(found)
 }
 
-
+#'@name wire.init.reg
+#'@title Get the initial values
+#'@description The routinnes to  fit mixture models to the data and to obtain  initial partition or initial values. 
+#'@param dat The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data.
+#'@param X The design matrix.
+#'@param n The number of observations.
+#'@param m The number of variables.
+#'@param g The number of components in the mixture model.
+#'@param qe The number of columns of design matrix W.
+#'@param cluster A vector of integers specifying the initial partitions of the data.
+#'@details These functions are called internally.
+#'@return A list containing
+#' \item{pro}{A vector of mixing proportions pi}
+#' \item{beta}{A numeric matrix with each column corresponding to the mean.}
+#' \item{sigma.e}{The covaraince of error}
+#' \item{cluster}{A vector of final partition}
+#' \item{loglik}{The loglikelihood at convergence}
+#' \item{lk}{A vector of loglikelihood at each EM iteration}
+#'@seealso \code{\link{emmixwire}}
+#'@keywords cluster datasets
+#'@export
 wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 {
   # set x for regression
@@ -428,7 +446,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 #'@param epsilon A small number used to stop the EM algorithm loop when the relative difference between log-likelihood at each iteration become sufficient small; the default value is 1e-5
 #'@param nkmeans An integer to specify the number of KMEANS partitions to be used to find the best initial values
 #'@param nrandom An integer to specify the number of random partitions to be used to find the best initial values
-#'@param debug A logical value, if it is TRUE, the output will be printed out; FALSE silent; the default value is TRUE
+#'@param debug A logical value, if it is TRUE, the output will be printed out; FALSE silent; the default value is FALSE
 
 #'@details  The combination of ncov and nvcov defines the covariance structure  of the random effect item b and c respectively.
 #' For example,when both ncov and nvcov are zeros,it is a mixtue of normal regression model. Specifically, when ncov=0, 
@@ -520,7 +538,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 #'@export
 emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
                     X=NULL,W=NULL,U=NULL,V=NULL,
-                    cluster=NULL,init=NULL,debug=0,itmax=1000,epsilon=1e-5,nkmeans=5,nrandom=0)
+                    cluster=NULL,init=NULL,debug=FALSE,itmax=1000,epsilon=1e-5,nkmeans=5,nrandom=0)
 {
   
   
@@ -584,6 +602,8 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   }
   sigma.c<-rep(tuv,g)
   
+  
+  message("initializing ...")
   #part 1: initial values
   if(!is.null(init)){
     found=init
@@ -600,12 +620,12 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   }
   
   #part 2: call the main estimate procedure
-  
+  message("Fitting mixture model with EM algorithm ...")
   ret<-fit.emmix.wire(dat,X,W,U,V,
                       found$pro,found$beta,found$sigma.e,sigma.b,sigma.c,
                       n,m,g,nb,qb,qc,qe,
                       debug,ncov,nvcov,itmax,epsilon)
-  
+  message(" done.")
   
   if(qb==m && (ncov==4 || ncov==2)){
     tmp <- array(0,c(m,g))

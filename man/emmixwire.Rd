@@ -6,8 +6,8 @@
 \usage{
 emmixwire(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
   X = NULL, W = NULL, U = NULL, V = NULL, cluster = NULL,
-  init = NULL, debug = 0, itmax = 1000, epsilon = 1e-05, nkmeans = 5,
-  nrandom = 0)
+  init = NULL, debug = FALSE, itmax = 1000, epsilon = 1e-05,
+  nkmeans = 5, nrandom = 0)
 }
 \arguments{
 \item{dat}{The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data}
@@ -32,7 +32,7 @@ emmixwire(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
 
 \item{init}{A list containing the initial parameters for the mixture model. See details. The default value is NULL}
 
-\item{debug}{A logical value, if it is TRUE, the output will be printed out; FALSE silent; the default value is TRUE}
+\item{debug}{A logical value, if it is TRUE, the output will be printed out; FALSE silent; the default value is FALSE}
 
 \item{itmax}{A big integer specifying the maximum number of iterations to apply; the default value is 1000}
 
