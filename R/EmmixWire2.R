@@ -18,7 +18,7 @@ matM.wire<-function(B,C,tau,g,m)
 {
   M<-array(0,dim=c(m,m,g))
 
-    for(h in 1:g){
+    for(h in seq_len(g)){
       M[,,h]<-solve(B[,,h]+C[,,h]*sum(tau[,h]))
     }
 
@@ -33,7 +33,7 @@ eb.estep<-function(tau,y,mu,DU,U,B,C,M,g,n,m,qb)
   eb2<-array(0,c(g,qb,qb))
   invB<-array(0,c(m,m,g))
   
-  for(h in 1:g)
+  for(h in seq_len(g))
   {
     invB[,,h]<-solve(B[,,h])
     # E(bi|y)
@@ -56,7 +56,7 @@ ec.estep<-function(tau,y,mu,sigma.c,V,M,g,n,qc)
   ec1<-array(0,c(qc,g))
   ec2<-kc<-rep(0,g)
   #
-  for(h in 1:g)
+  for(h in seq_len(g))
   {
     ec1[,h]<-sigma.c[h]*t(V)%*%M[,,h]%*%colSums(t(t(y)-mu[,h])*tau[,h])
     kc[h] <-sigma.c[h]*qc-sum(diag(t(V)%*%M[,,h]%*%V))*(sigma.c[h]^2*sum(tau[,h]))
@@ -73,11 +73,11 @@ ee.estep<-function(y,mu,tau,U,V,W,A,invB,M,g,n,m,qe,dw,eb1,ec1)
   ke<-rep(0,g)
   thet<-matrix(0,ncol=g,nrow=qe)
   mi<-diag(t(W)%*%W)
-  for(h in 1:g)
+  for(h in seq_len(g))
   {
     ae[,,h]<-t(mu[,h]+U%*%t(eb1[,,h])+c(V%*%ec1[,h]))			
     ee[,,h]<- (y-ae[,,h])
-    for(id in 1:ncol(W))
+    for(id in seq_len(ncol(W)))
     {
       AL<-A[,,h]*W[,id]
       ke[h]<-(sum(tau[,h])*sum(diag(AL))-sum(diag(  t(AL)%*%M[,,h]%*%AL))
@@ -103,14 +103,14 @@ getcov <-function(msigma,sumtau,n,m,g,ncov)
   
   if( (ncov==1)|(ncov==2))
   {
-    for(h in 1:g){
+    for(h in seq_len(g)){
       sigma<-sigma+sumtau[h]*msigma[,,h]
     }
     sigma<-as.matrix(sigma/n)
     
     if(ncov==2){
       sigma<-diag(c(diag(sigma)),m)
-      for(h in 1:g){
+      for(h in seq_len(g)){
         msigma[,,h]=sigma
       }
     }
@@ -119,13 +119,13 @@ getcov <-function(msigma,sumtau,n,m,g,ncov)
   if(m>1)
   {
     if(ncov==4){
-      for(h in 1:g){
+      for(h in seq_len(g)){
         msigma[,,h]<-diag(c(diag(msigma[,,h])),m)
       }
     }
       
       if(ncov==5){
-        for(h in 1:g){
+        for(h in seq_len(g)){
           msigma[,,h]<-diag(sum(diag(msigma[,,h]))/m,m)
         }
       }
@@ -155,14 +155,14 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   mu<-matrix(0,ncol=g,nrow=m)
   
   #main loop
-  for(i in 1:itmax)
+  for(i in seq_len(itmax))
   {
     mobj<-mat.ABC.wire(U,VV,W,sigma.e,sigma.b,sigma.c,g,m)
     A<-mobj$A
     B<-mobj$B
     C<-mobj$C
     BC<-mobj$BC
-    for(h in 1:g) {
+    for(h in seq_len(g)) {
       mu[,h]     <- as.vector(X%*%beta[,h])
     }
     
@@ -193,7 +193,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
     if(ncov>0)
       sigma.b<-obj1$DU
     else
-      for(h in 1:g)
+      for(h in seq_len(g))
         sigma.b[,,h]<-diag(0,qb)
     
     if( (ncov>0) & (ncov!=3) & (ncov!="AR") )
@@ -209,7 +209,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
     
     #--------------------------------
     
-    for(h in 1:g)
+    for(h in seq_len(g))
       nbeta[,h]<-(beta[,h]+xxx%*%M[,,h]%*%A[,,h]%*%colSums(t(t(dat)-mu[,h])*tau[,h])/sumtau[h])
     
     #--------------------------------
@@ -240,7 +240,7 @@ fit.emmix.wire<-function(dat,X,W,U,V,pro,beta,sigma.e,sigma.b,sigma.c,
   
   #get the the final partition
   
-  for(h in 1:g) {
+  for(h in seq_len(g)) {
       mu[,h]<-as.vector(X%*%beta[,h]+V%*%obj2$ec1[,h])
   }
   
@@ -334,7 +334,7 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   {
     cluster<-rep(1,n)		
     if(g>1)
-    cluster<- sample(1:g,n,replace=TRUE)
+    cluster<- sample(seq_len(g),n,replace=TRUE)
     wire.init.reg(dat,X,qe,n,m,g,cluster)
   }
   	
@@ -342,7 +342,7 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
   found$loglik<- -Inf
   	
   if(nkmeans>0) {
-    for(j in 1:nkmeans)
+    for(j in seq_len(nkmeans))
     {	
       initobj<-try(wire.init.km(dat,X,qe,n,m,g))	
       if(class(initobj)!="try-error"){
@@ -354,7 +354,7 @@ wire.init.fit<-function(dat,X,qe,n,m,g,nkmeans,nrandom=0)
  
   }
   if(nrandom>0) {
-    for(j in 1:nrandom)
+    for(j in seq_len(nrandom))
     {
     	initobj<-try(wire.init.rd(dat,X,qe,n,m,g))
     	if(class(initobj)!="try-error"){
@@ -378,7 +378,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 	mu     <- array(0,c(m,g))
 	msigma <- array(0,c(m,m,g))
 	lk <- rep(0,g)
-	for( ij in 1:g)
+	for( ij in seq_len(g))
 	{
 		ni<-sum(cluster==ij)
 		if(ni==0){
@@ -403,7 +403,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
 	
 	# loglikelihood
 	
-	for(h in 1:g) {
+	for(h in seq_len(g)) {
 		mu[,h] <-c(X%*%beta[,h])
 		msigma[,,h] <- diag(sigma[h],m)
 		ni <- sum(cluster==h)
@@ -416,7 +416,7 @@ wire.init.reg<-function(dat,X,qe,n,m,g,cluster)
   ooo <- tau.estep.wire(dat,pro,mu,msigma,n,m,g)
 	loglik <- ooo$loglik
 	sigma.e<-matrix(0,ncol=g,nrow=qe)
-	for(i in 1:qe){
+	for(i in seq_len(qe)){
 		sigma.e[i,]<-sigma
 	}
 	return(list(beta=beta,sigma.e=sigma.e,pro=pro,loglik=loglik,lk=lk))
@@ -588,7 +588,7 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   tuv <- 0.2
   # initialize the sigma_b and sigma_c
   sigma.b<-array(0,c(qb,qb,g))
-  for(h in 1:g){
+  for(h in seq_len(g)){
     if(qb>1){
       diag(sigma.b[,,h])<-rep(tuv,qb)
     }else{
@@ -622,7 +622,7 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   
   if(qb==m && (ncov==4 || ncov==2)){
     tmp <- array(0,c(m,g))
-    for(h in 1:g){
+    for(h in seq_len(g)){
       tmp[,h] <- diag(ret$sigma.b[,,h])
     }
     ret$sigma.b <- tmp
@@ -630,7 +630,7 @@ emmixwire<-function(dat,g=1,ncov=3,nvcov=0,n1=0,n2=0,n3=0,
   
   if(ncov==5){
     tmp <- rep(0,g)
-    for(h in 1:g){
+    for(h in seq_len(g)){
       tmp[h] <- diag(ret$sigma.b[,,h])[1]
     }
     ret$sigma.b <- tmp
@@ -700,7 +700,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   
 
  
-  for(h in 1:g)
+  for(h in seq_len(g))
   {
   	# A
   	if(ncol(W) > 1)
@@ -726,7 +726,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
   	# P
   	P <- t(XV) %*% A %*% XV
   
-  	P[2+1:m,2+1:m] <- P[2+1:m,2+1:m] + C
+  	P[2+seq_len(m),2+seq_len(m)] <- P[2+seq_len(m),2+seq_len(m)] + C
   	
   	P <- P - XVAU %*% E %*% t(XVAU)
   	#P sometimes singular
@@ -764,7 +764,7 @@ eq8.wire <-function(m,g,nb,X,W,U,V,sigma.e,sigma.b,sigma.c,nh,contrast)
 #'    
 #'    dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\t')
 #'    
-#'    rownames(dat) <- 1:nrow(dat)
+#'    rownames(dat) <- seq_len(nrow(dat))
 #'    
 #'    ###normalize the rows
 #'    x <- DoRows(dat)
@@ -847,7 +847,7 @@ NULL
 #'  \dontrun{
 #'    
 #'    dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\t')
-#'    rownames(dat) <- 1:nrow(dat)
+#'    rownames(dat) <- seq_len(nrow(dat))
 #'    set.seed(12345)
 #'    ret <-emmixwire(dat,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
 #'                    debug=1,itmax=1000,epsilon=1e-5)
@@ -883,7 +883,7 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL, seed=1234) {
   m<-ncol(data)
   mu<-matrix(0,ncol=g,nrow=m)
   	
-  for(h in 1:g){ 
+  for(h in seq_len(g)){ 
    mu[,h] <- as.vector(X %*% ret$beta[,h])
   }
   
@@ -904,8 +904,8 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL, seed=1234) {
   #-------------------------------------	
   set.seed(seed)
   wj0 <- array(0,c(n,nB))
-  for(b in 1:nB) { #do B permutation
-  da <- data[,sample(1:m,m,replace=FALSE)]	
+  for(b in seq_len(nB)) { #do B permutation
+  da <- data[,sample(seq_len(m),m,replace=FALSE)]	
   #   get tau for da		
   tau  <- tau.estep.wire(da,ret$pro,mu,BC,n,m,g)$tau
   M <- matM.wire(B,C,tau,g,m)
@@ -919,7 +919,7 @@ wj2.permuted <- function(data,ret,nB=99,contrast=NULL, seed=1234) {
   		
   # get new tau		
   mu2    <- mu	
-  for(h in 1:g){
+  for(h in seq_len(g)){
     if(!is.null(ec[,h])){
       mu2[,h]<- c(X%*%ret$beta[,h]+V%*%ec[,h])
     }else{
@@ -958,7 +958,7 @@ pvalue.wire <- function(wj,wj0){
   n0 <- length(wj)
   nn <- length(wj0)
   pv <- rep(0,n0)
-  for(j in 1:n0) {
+  for(j in seq_len(n0)) {
     pv[j] <- sum( abs(c(wj,wj0)) >= abs(wj[j])) /(nn+n0)
   }
   return(pv)	
@@ -968,7 +968,7 @@ pvalue.wire <- function(wj,wj0){
 mat.ABC.wire<-function(U,VV,W,sigma.e,DU,sigma.c,g,m)
 {
   A<-B<-C<-BC<-array(0,dim=c(m,m,g))
-  for(h in 1:g){
+  for(h in seq_len(g)){
     if(ncol(W)>1){
       A[,,h]<-diag(as.vector(W%*%sigma.e[,h]))
     }else{

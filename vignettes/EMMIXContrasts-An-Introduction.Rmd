@@ -1,0 +1,38 @@
+---
+title: "EMMIXContrasts: an Introduction"
+author: "Andrew Thomas Jones"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+## Citation
+
+# Basic Workflow
+
+## Pre-processing
+
+## Choosing the number of groups, *g*
+
+## Scores
+
+## Null-Distribution
+
+## P-values
+
+# Experimental design
+
+## Time
+
+## Blocking
+
+# Case Studies
+
+## Golden Spike
+
+## Alon Cancer data
