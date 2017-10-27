@@ -6,186 +6,182 @@ NULL
 #E-step
 .tau.estep.wire<-function(dat, pro, mu, sigma, n, m, g)
 {
-  #calls C++ code
-  ret<-estep(dat,  n,  m,   g,  pro,  mu,  sigma)
-  return(ret)		
+    #calls C++ code
+    ret<-estep(dat, n, m, g, pro, mu, sigma)
+    return(ret)		
 }
 
 #Sets up matrix M
 .matM.wire<-function(B, C, tau, g, m)
 {
-  M<-array(0, dim=c(m, m, g))
+   M<-array(0, dim=c(m, m, g))
   
-  for(h in seq_len(g)){
-    M[, , h]<-solve(B[, , h]+C[, , h]*sum(tau[, h]))
-  }
-  
-  return(M)
+    for(h in seq_len(g)){
+        M[, , h]<-solve(B[, , h]+C[, , h]*sum(tau[, h]))
+    }
+    return(M)
 }
 #--------------------------------------------
 
 #E-Step for B
 .eb.estep<-function(tau, y, mu, DU, U, B, C, M, g, n, m, qb)
 {
-  eb1<-array(0, dim=c(n, qb, g))
-  eb2<-array(0, c(g, qb, qb))
-  invB<-array(0, c(m, m, g))
-  
-  for(h in seq_len(g))
-  {
-    invB[, , h]<-solve(B[, , h])
-    # E(bi|y)
+    eb1<-array(0, dim=c(n, qb, g))
+    eb2<-array(0, c(g, qb, qb))
+    invB<-array(0, c(m, m, g))
+        
+        for(h in seq_len(g))
+        {
+          invB[, , h]<-solve(B[, , h])
+          # E(bi|y)
+          eb1[, , h]<-t( DU[, , h]%*%t(U)%*%invB[, , h]%*%(    (t(y)-mu[, h])-c(C[, , h]%*%M[, , h]%*%colSums(t(t(y)-mu[, h])*tau[, h])) ))
+          #E(bi%*%bi^t|y)
+          eb2[h, , ]<-( sum(tau[, h])*DU[, , h]-(sum(tau[, h])-1)*DU[, , h]%*%t(U)%*%invB[, , h]%*%U%*%DU[, , h]	
+                        -DU[, , h]%*%t(U)%*%M[, , h]%*%U%*%DU[, , h])
+          DU[, , h]<-(eb2[h, , ]+ t(eb1[, , h]*tau[, h])%*%eb1[, , h])/sum(tau[, h])
+        }
     
-    eb1[, , h]<-t( DU[, , h]%*%t(U)%*%invB[, , h]%*%(  (t(y)-mu[, h])-c(C[, , h]%*%M[, , h]%*%colSums(t(t(y)-mu[, h])*tau[, h])) ))
-    
-    
-    #E(bi%*%bi^t|y)
-    eb2[h, , ]<-( sum(tau[, h])*DU[, , h]-(sum(tau[, h])-1)*DU[, , h]%*%t(U)%*%invB[, , h]%*%U%*%DU[, , h]	
-                -DU[, , h]%*%t(U)%*%M[, , h]%*%U%*%DU[, , h])
-    DU[, , h]<-(eb2[h, , ]+ t(eb1[, , h]*tau[, h])%*%eb1[, , h])/sum(tau[, h])
-  }
-  
-  list(DU=DU, eb1=eb1, invB=invB)
+    list(DU=DU, eb1=eb1, invB=invB)
 }
 
 #E-Step for C
 .ec.estep<-function(tau, y, mu, sigma.c, V, M, g, n, qc)
 {
-  ec1<-array(0, c(qc, g))
-  ec2<-kc<-rep(0, g)
-  #
-  for(h in seq_len(g))
-  {
-    ec1[, h]<-sigma.c[h]*t(V)%*%M[, , h]%*%colSums(t(t(y)-mu[, h])*tau[, h])
-    kc[h] <-sigma.c[h]*qc-sum(diag(t(V)%*%M[, , h]%*%V))*(sigma.c[h]^2*sum(tau[, h]))
-    ec2[h]<-c(t(ec1[, h])%*%ec1[, h]+kc[h])/qc
-  }	
-  #
-  list(ec2=ec2, ec1=ec1)
+    ec1<-array(0, c(qc, g))
+    ec2<-kc<-rep(0, g)
+    #
+    for(h in seq_len(g))
+    {
+        ec1[, h]<-sigma.c[h]*t(V)%*%M[, , h]%*%colSums(t(t(y)-mu[, h])*tau[, h])
+        kc[h] <-sigma.c[h]*qc-sum(diag(t(V)%*%M[, , h]%*%V))*(sigma.c[h]^2*sum(tau[, h]))
+        ec2[h]<-c(t(ec1[, h])%*%ec1[, h]+kc[h])/qc
+    }	
+    #
+    list(ec2=ec2, ec1=ec1)
 }
 
 #E-Step for Errors
 .ee.estep<-function(y, mu, tau, U, V, W, A, invB, M, g, n, m, qe, dw, eb1, ec1)
 {
-  ae<-ee<-array(0, dim=c(n, m, g))
-  ke<-rep(0, g)
-  thet<-matrix(0, ncol=g, nrow=qe)
-  mi<-diag(t(W)%*%W)
-  for(h in seq_len(g))
-  {
-    ae[, , h]<-t(mu[, h]+U%*%t(eb1[, , h])+c(V%*%ec1[, h]))			
-    ee[, , h]<- (y-ae[, , h])
-    for(id in seq_len(ncol(W)))
+    ae<-ee<-array(0, dim=c(n, m, g))
+    ke<-rep(0, g)
+    thet<-matrix(0, ncol=g, nrow=qe)
+    mi<-diag(t(W)%*%W)
+    for(h in seq_len(g))
     {
-      AL<-A[, , h]*W[, id]
-      ke[h]<-(sum(tau[, h])*sum(diag(AL))-sum(diag(  t(AL)%*%M[, , h]%*%AL))
-              -(sum(tau[, h])-1)*sum(diag( t(AL)%*%invB[, , h]%*%AL)))
-      
-      thet[id, h]<-( sum(c(  t((t(ee[, , h])*W[, id])^2)*tau[, h]  ))+ke[h])/(mi[id]*sum(tau[, h]))
-    }# end of loop
-    
-  } #end of loop
-  list(sigma.e=thet, ae=ae)
+        ae[, , h]<-t(mu[, h]+U%*%t(eb1[, , h])+c(V%*%ec1[, h]))			
+        ee[, , h]<- (y-ae[, , h])
+        for(id in seq_len(ncol(W)))
+        {
+            AL<-A[, , h]*W[, id]
+            ke[h]<-(sum(tau[, h])*sum(diag(AL))-sum(diag(t(AL)%*%M[, , h]%*%AL))
+                            -(sum(tau[, h])-1)*sum(diag( t(AL)%*%invB[, , h]%*%AL)))
+            
+            thet[id, h]<-( sum(c(t((t(ee[, , h])*W[, id])^2)*tau[, h]))+ke[h])/(mi[id]*sum(tau[, h]))
+        }# end of loop
+        
+    } #end of loop
+    list(sigma.e=thet, ae=ae)
 }
 
 #returns which cluster allocation (MAP) from tau matrix
 .tau2cluster<-function(tau)
 {
-  apply(tau, FUN=which.max, MARGIN=1)
+    apply(tau, FUN=which.max, MARGIN=1)
 }
 
 #returns covarainces for each group h (in g)
 .getcov <-function(msigma, sumtau, n, m, g, ncov)
 {
-  sigma<-array(0, c(m, m))
-  
-  if( (ncov==1)|(ncov==2))
-  {
-    for(h in seq_len(g)){
-      sigma<-sigma+sumtau[h]*msigma[, , h]
-    }
-    sigma<-as.matrix(sigma/n)
+    sigma<-array(0, c(m, m))
     
-    if(ncov==2){
-      sigma<-diag(c(diag(sigma)), m)
-      for(h in seq_len(g)){
-        msigma[, , h]=sigma
-      }
-    }
-  }
-  
-  if(m>1)
-  {
-    if(ncov==4){
-      for(h in seq_len(g)){
-        msigma[, , h]<-diag(c(diag(msigma[, , h])), m)
-      }
+    if( (ncov==1)|(ncov==2))
+    {
+        for(h in seq_len(g)){
+            sigma<-sigma+sumtau[h]*msigma[, , h]
+        }
+        sigma<-as.matrix(sigma/n)
+        
+        if(ncov==2){
+            sigma<-diag(c(diag(sigma)), m)
+            for(h in seq_len(g)){
+                msigma[, , h]=sigma
+            }
+        }
     }
     
-    if(ncov==5){
-      for(h in seq_len(g)){
-        msigma[, , h]<-diag(sum(diag(msigma[, , h]))/m, m)
-      }
+    if(m>1)
+    {
+        if(ncov==4){
+            for(h in seq_len(g)){
+                msigma[, , h]<-diag(c(diag(msigma[, , h])), m)
+            }
+        }
+        
+        if(ncov==5){
+            for(h in seq_len(g)){
+                msigma[, , h]<-diag(sum(diag(msigma[, , h]))/m, m)
+            }
+        }
     }
-  }
-  
-  return(msigma)
+    
+    return(msigma)
 }
 
 # do EMMIX-WIRE analysis from initial values
 .fit.emmix.wire<-function(dat, X, W, U, V, pro, beta, sigma.e, sigma.b, sigma.c, 
-                         n, m, g, nb, qb, qc, qe, 
-                         debug, ncov, nvcov, itmax, epsilon, log=TRUE)
+                                                 n, m, g, nb, qb, qc, qe, 
+                                                 debug, ncov, nvcov, itmax, epsilon, log=TRUE)
 {
-  # controls
-  flag<-error<-0
-  lk<-rep(0, itmax)
-  
-  oldpro<-pro
-  nbeta<-beta
-  
-  
-  VV<-V%*%t(V)
-  dw<-diag(t(W)%*%W)
-  xxx<-ginv(t(X)%*%X)%*%t(X)
-  mu<-matrix(0, ncol=g, nrow=m)
-  
-  #main EM loop
-  
-  for(i in seq_len(itmax))
-  {
-    mobj<-.mat.ABC.wire(U, VV, W, sigma.e, sigma.b, sigma.c, g, m)
-    A<-mobj$A
-    B<-mobj$B
-    C<-mobj$C
-    BC<-mobj$BC
+    # controls
+    flag<-error<-0
+    lk<-rep(0, itmax)
     
-    for(h in seq_len(g)) {
-      mu[, h] <- as.vector(X%*%beta[, h])
-    }
-    
-    # E-step
-    eobj<-.tau.estep.wire(dat, oldpro, mu, BC, n, m, g)
-    pro   <-eobj$pro
-    tau   <-eobj$tau
-    lk[i] <-eobj$loglik
-    sumtau<- colSums(tau)
-    M<-.matM.wire(B, C, tau, g, m)
-    obj1 <- .eb.estep(tau, dat, mu, sigma.b, U, B, C, M, g, n, m, qb)
-    obj2 <- .ec.estep(tau, dat, mu, sigma.c, V, M, g, n, qc)
-    obj3 <- .ee.estep(dat, mu, tau, U, V, W, A, obj1$invB, M, g, n, m, qe, dw, obj1$eb1, obj2$ec1)
+    oldpro<-pro
+    nbeta<-beta
     
     
-    # M-step
+    VV<-V%*%t(V)
+    dw<-diag(t(W)%*%W)
+    xxx<-ginv(t(X)%*%X)%*%t(X)
+    mu<-matrix(0, ncol=g, nrow=m)
     
-    if(ncov>0){
-      sigma.b<-obj1$DU
-    }else{
-      for(h in seq_len(g)){
-        sigma.b[, , h]<-diag(0, qb)
+    #main EM loop
+    
+    for(i in seq_len(itmax))
+    {
+      mobj<-.mat.ABC.wire(U, VV, W, sigma.e, sigma.b, sigma.c, g, m)
+      A<-mobj$A
+      B<-mobj$B
+      C<-mobj$C
+      BC<-mobj$BC
+      
+      for(h in seq_len(g)) {
+        mu[, h] <- as.vector(X%*%beta[, h])
       }
-    }
-    
+      
+      # E-step
+      eobj<-.tau.estep.wire(dat, oldpro, mu, BC, n, m, g)
+      pro<-eobj$pro
+      tau<-eobj$tau
+      lk[i] <-eobj$loglik
+      sumtau<- colSums(tau)
+      M<-.matM.wire(B, C, tau, g, m)
+      obj1 <- .eb.estep(tau, dat, mu, sigma.b, U, B, C, M, g, n, m, qb)
+      obj2 <- .ec.estep(tau, dat, mu, sigma.c, V, M, g, n, qc)
+      obj3 <- .ee.estep(dat, mu, tau, U, V, W, A, obj1$invB, M, g, n, m, qe, dw, obj1$eb1, obj2$ec1)
+        
+            
+            # M-step
+            
+      if(ncov>0){
+        sigma.b<-obj1$DU
+      }else{
+            for(h in seq_len(g)){
+                sigma.b[, , h]<-diag(0, qb)
+            }
+        }
+      
     if( (ncov>0) & (ncov!=3) & (ncov!="AR") ){
       sigma.b <- .getcov(sigma.b, sumtau, n, qb, g, ncov)
     }
@@ -750,7 +746,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V, sigma.e, sigma.b, sigma.c, nh, contras
 }
 
 
-
+  
 
 
 
@@ -990,35 +986,34 @@ NULL
 #'@keywords cluster datasets
 #'@export
 pvalue.wire <- function(wj, wj0){	
-  n0 <- length(wj)
-  nn <- length(wj0)
-  pv <- rep(0, n0)
-  for(j in seq_len(n0)) {
-    pv[j] <- sum( abs(c(wj, wj0)) >= abs(wj[j])) /(nn+n0)
-  }
-  return(pv)	
+    n0 <- length(wj)
+    nn <- length(wj0)
+    pv <- rep(0, n0)
+    for(j in seq_len(n0)) {
+        pv[j] <- sum( abs(c(wj, wj0)) >= abs(wj[j])) /(nn+n0)
+    }
+    return(pv)	
 }
 
 
 .mat.ABC.wire<-function(U, VV, W, sigma.e, DU, sigma.c, g, m)
 {
-  A<-B<-C<-BC<-array(0, dim=c(m, m, g))
-  for(h in seq_len(g)){
-    if(ncol(W)>1){
-      A[, , h]<-diag(as.vector(W%*%sigma.e[, h]))
-    }else{
-      A[, , h]<-diag(c(W[, 1]*sigma.e[1, h]))
+    A<-B<-C<-BC<-array(0, dim=c(m, m, g))
+    for(h in seq_len(g)){
+        if(ncol(W)>1){
+            A[, , h]<-diag(as.vector(W%*%sigma.e[, h]))
+        }else{
+            A[, , h]<-diag(c(W[, 1]*sigma.e[1, h]))
+        }
+        B[, , h]<-A[, , h]+U%*%DU[, , h]%*%t(U)
+        if(!is.null(sigma.c[h])){
+            C[, , h]<-sigma.c[h]*VV
+            BC[, , h]<-B[, , h]+C[, , h]
+        }else{
+            BC[, , h]<-B[, , h]
+        }
     }
-    B[, , h]<-A[, , h]+U%*%DU[, , h]%*%t(U)
-    if(!is.null(sigma.c[h])){
-      C[, , h]<-sigma.c[h]*VV
-      BC[, , h]<-B[, , h]+C[, , h]
-    }else{
-      BC[, , h]<-B[, , h]
-    }
-    
-  }
-  return(list(A=A, B=B, C=C, BC=BC))
+    return(list(A=A, B=B, C=C, BC=BC))
 }
 NULL
 #' @title The goldenspike gene expression dataset
