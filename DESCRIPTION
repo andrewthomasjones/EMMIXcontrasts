@@ -9,7 +9,7 @@ LazyLoad: yes
 NeedsCompilation: yes
 Repository: CRAN
 RoxygenNote: 6.0.1
-Imports: Rcpp (>= 0.12.12), MASS
+Imports: Rcpp (>= 0.12.12), MASS, stats
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++11
 Suggests: knitr,
