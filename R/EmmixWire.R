@@ -95,14 +95,14 @@ NULL
 {
     sigma<-array(0, c(m, m))
     
-    if( (ncov==1)|(ncov==2))
+    if( (ncov == 1)|(ncov == 2))
     {
         for(h in seq_len(g)){
             sigma<-sigma+sumtau[h]*msigma[, , h]
         }
         sigma<-as.matrix(sigma/n)
         
-        if(ncov==2){
+        if(ncov == 2){
             sigma<-diag(c(diag(sigma)), m)
             for(h in seq_len(g)){
                 msigma[, , h]=sigma
@@ -110,15 +110,15 @@ NULL
         }
     }
     
-    if(m>1)
+    if(m > 1)
     {
-        if(ncov==4){
+        if(ncov == 4){
             for(h in seq_len(g)){
                 msigma[, , h]<-diag(c(diag(msigma[, , h])), m)
             }
         }
         
-        if(ncov==5){
+        if(ncov == 5){
             for(h in seq_len(g)){
                 msigma[, , h]<-diag(sum(diag(msigma[, , h]))/m, m)
             }
@@ -174,7 +174,7 @@ NULL
             
             # M-step
             
-      if(ncov>0){
+      if(ncov > 0){
         sigma.b<-obj1$DU
       }else{
             for(h in seq_len(g)){
@@ -182,11 +182,11 @@ NULL
             }
         }
       
-    if( (ncov>0) & (ncov!=3) & (ncov!="AR") ){
+    if( (ncov > 0) & (ncov!=3) & (ncov!="AR") ){
       sigma.b <- .getcov(sigma.b, sumtau, n, qb, g, ncov)
     }
     
-    if(nvcov>0){
+    if(nvcov > 0){
       sigma.c<-obj2$ec2
     }else{
       sigma.c<-rep(0, g)
@@ -219,7 +219,7 @@ NULL
     
   } # end of loop 
   
-  if(flag==0){
+  if(flag == 0){
     error <- 1
   }
   
@@ -235,14 +235,14 @@ NULL
   # 
   # BIC & AIC
   nu<-switch(paste(ncov), 
-             '0' = 0,               # without u
-             '1' = qb*(1+qb)/2,     #common covariance
-             '2' = qb,              #common diagonal covariance
-             '3' = g*(qb*(1+qb)/2), #general covariance
-             '4' = g*qb,            #general diagonal covariance
-             '5' = g  )            #sigma(h)*I_m
+             '0'=  0,               # without u
+             '1'=  qb*(1+qb)/2,     #common covariance
+             '2'=  qb,              #common diagonal covariance
+             '3'=  g*(qb*(1+qb)/2), #general covariance
+             '4'=  g*qb,            #general diagonal covariance
+             '5'=  g  )            #sigma(h)*I_m
   
-  nv<-ifelse(nvcov>0, g, 0)
+  nv<-ifelse(nvcov > 0, g, 0)
   np<-(g-1)+nb*g + nu + nv+ g*qe
   #
   BIC<--2*loglik+np*log(n)
@@ -257,17 +257,17 @@ NULL
   
   ret <- list(error=error, loglik=loglik, np=np, 
               BIC=BIC, AIC=AIC, cluster=cluster, 
-              pro=pro, beta=beta, sigma.e = sigma.e)
-  ret$lk =lk[lk!=0]
+              pro=pro, beta=beta, sigma.e=  sigma.e)
+  ret$lk=lk[lk!=0]
   ret$tau=eobj2$tau
   
-  if(ncov==1||ncov==2||ncov==3||ncov==4||ncov==5)
+  if(ncov == 1||ncov == 2||ncov == 3||ncov == 4||ncov == 5)
   {
     ret$sigma.b <- sigma.b
     ret$eb      <- obj1$eb1
   }
   
-  if(nvcov>0)
+  if(nvcov > 0)
   {
     ret$sigma.c <- sigma.c
     ret$ec      <- obj2$ec1
@@ -307,14 +307,14 @@ wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
   wire.init.km<-function(dat, X, qe, n, m, g)
   {
     cluster<-rep(1, n)		
-    if(g>1)
+    if(g > 1)
       cluster<- kmeans(dat, g, nstart=5)$cluster
     wire.init.reg(dat, X, qe, n, m, g, cluster)
   }	
   wire.init.rd<-function(dat, X, qe, n, m, g)
   {
     cluster<-rep(1, n)		
-    if(g>1)
+    if(g > 1)
       cluster<- sample(seq_len(g), n, replace=TRUE)
     wire.init.reg(dat, X, qe, n, m, g, cluster)
   }
@@ -322,24 +322,24 @@ wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
   found<-NULL
   found$loglik<- -Inf
   
-  if(nkmeans>0) {
+  if(nkmeans > 0) {
     for(j in seq_len(nkmeans))
     {	
       initobj<-try(wire.init.km(dat, X, qe, n, m, g))	
       if(class(initobj)!="try-error"){
-        if(initobj$loglik>found$loglik){
+        if(initobj$loglik > found$loglik){
           found<-initobj
         }
       }
     }
     
   }
-  if(nrandom>0) {
+  if(nrandom > 0) {
     for(j in seq_len(nrandom))
     {
       initobj<-try(wire.init.rd(dat, X, qe, n, m, g))
       if(class(initobj)!="try-error"){
-        if(initobj$loglik>found$loglik){
+        if(initobj$loglik > found$loglik){
           found<-initobj
         }
       }
@@ -381,14 +381,14 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
   lk <- rep(0, g)
   for( ij in seq_len(g))
   {
-    ni<-sum(cluster==ij)
-    if(ni==0){
+    ni<-sum(cluster == ij)
+    if(ni == 0){
       warning("empty cluster found!")
       next
     }
     nn     <- ni
     #pile up y
-    y      <- c(t(dat[cluster==ij, ]))	
+    y      <- c(t(dat[cluster == ij, ]))	
     if(nn > 1)
     {
       for(i in 2:nn)
@@ -407,8 +407,8 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
   for(h in seq_len(g)) {
     mu[, h] <-c(X%*%beta[, h])
     msigma[, , h] <- diag(sigma[h], m)
-    ni <- sum(cluster==h)
-    if(ni==0){
+    ni <- sum(cluster == h)
+    if(ni == 0){
       warning("empty cluster found!")
       next
     }
@@ -425,8 +425,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 
 
 #'@title The EMMIX model with random effects
-#'@description The function emmixwire fits the data with the specified EMMIX-WIRE model.
-
+#'@description The function emmixwire fits the data with the specified EMMIX-WIRE model as in [1].
 #'@param dat The dataset,  an n by m numeric matrix,  where n is number of observations and m the dimension of data
 #'@param g The number of components in the mixture model
 #'@param ncov A small integer indicating the type of covariance structure of random item b 
@@ -452,7 +451,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'  sigma(h)*I(m)(diagonal scale parameter matrix with same identical diagonal element values).
 
 #'@return A list containing the following:
-#'\item{error}{Error code,  0 = normal exit;  1 = did not converge within \code{itmax} iterations}
+#'\item{error}{Error code,  0=  normal exit;  1=  did not converge within \code{itmax} iterations}
 #'\item{loglik}{The log likelihood at convergence}
 #'\item{np}{The total number of parameters}
 #'\item{AIC}{Akaike Information Criterion (AIC) }
@@ -474,14 +473,14 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'\item{g}{The number of components in the mixture model}
 
 #'@seealso \code{\link{scores.wire}}
-
+#'@references [1] Ng, S. K., McLachlan, G. J., Wang, K., Nagymanyoki, Z., Liu, S., & Ng, S. W. (2014). Inference on differences between classes       using cluster-specific contrasts of mixed effects. Biostatistics, 16(1), 98-112.
 #'@examples 
 #'  \dontrun{
 #'    data(expr.norm)
 #'    data(mapping.unique)
 #'    
-#'    dat = expr.norm
-#'    map = mapping.unique
+#'    dat=  expr.norm
+#'    map=  mapping.unique
 #'    #map= 1: S/C=1,  2535;
 #'    #map=-1: "empties",  10131;
 #'    #map=-2: "mixed",  ambiguous,  13,  excluded;
@@ -492,8 +491,8 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'    #and 
 #'    #12, 666 (90.5 percent) true nulls.
 #'    #---------------------
-#'    dat = as.matrix(dat[map>=-1, ])
-#'    map = map[map>=-1]
+#'    dat=  as.matrix(dat[map>=-1, ])
+#'    map=  map[map>=-1]
 #'    #---------------------
 #'    
 #'    y  <- log(dat)
@@ -515,7 +514,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'    ###top 1000 genes
 #'    wire.1000 <- names(map)[order(abs(wj), decreasing=TRUE)][1:1000]
 #'    ###the number of false non-nulls in the top 1000 genes 
-#'    sum(map[wire.1000]==1) + sum( map[wire.1000]==-1)
+#'    sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #'    #119
 #'    
 #'    ##alternatively
@@ -524,7 +523,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'    pv  <- pvalue.wire(wj, wj0)
 #'    wire.1000 <- names(map)[order(pv, decreasing=0)][1:1000]
 #'    ###the number of false non-nulls in the top 1000 genes 
-#'    sum(map[wire.1000]==1) + sum( map[wire.1000]==-1)
+#'    sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #'    #119
 #'    hist(pv, 50)
 #'    
@@ -545,8 +544,8 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
   m<-ncol(dat)
   
   #
-  if(n1 >0 && n2>0 ){
-    if(n3==0){
+  if(n1 > 0 && n2 > 0 ){
+    if(n3 == 0){
       X<-U<-cbind(rep(c(1, 0), c(n1, n2)), rep(c(0, 1), c(n1, n2)))
     }else{
       X<-U<-cbind(rep(c(1, 0, 0), c(n1, n2, n3)), rep(c(0, 1, 0), c(n1, n2, n3)), rep(c(0, 0, 1), c(n1, n2, n3)))
@@ -556,7 +555,7 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
   }else{
     
     # check the matrix U
-    if(ncov==0){
+    if(ncov == 0){
       U<- diag(m)
     }else{
       if(is.null(U)){
@@ -565,7 +564,7 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
     }
     
     # check the matrix V
-    if(is.null(V) || nvcov==0){
+    if(is.null(V) || nvcov == 0){
       V  <- diag(m)
     }
     
@@ -590,7 +589,7 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
   # initialize the sigma_b and sigma_c
   sigma.b<-array(0, c(qb, qb, g))
   for(h in seq_len(g)){
-    if(qb>1){
+    if(qb > 1){
       diag(sigma.b[, , h])<-rep(tuv, qb)
     }else{
       sigma.b[1, 1, h] <- tuv
@@ -623,7 +622,7 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
                       debug, ncov, nvcov, itmax, epsilon)
   message(" done.")
   
-  if(qb==m && (ncov==4 || ncov==2)){
+  if(qb == m && (ncov == 4 || ncov == 2)){
     tmp <- array(0, c(m, g))
     for(h in seq_len(g)){
       tmp[, h] <- diag(ret$sigma.b[, , h])
@@ -631,7 +630,7 @@ emmixwire<-function(dat, g=1, ncov=3, nvcov=0, n1=0, n2=0, n3=0,
     ret$sigma.b <- tmp
   }
   
-  if(ncov==5){
+  if(ncov == 5){
     tmp <- rep(0, g)
     for(h in seq_len(g)){
       tmp[h] <- diag(ret$sigma.b[, , h])[1]
@@ -673,29 +672,29 @@ eq8.wire <-function(m, g, nb, X, W, U, V, sigma.e, sigma.b, sigma.c, nh, contras
   
   omega <- rep(0, g)
   if(is.null(contrast)) {
-    if(nb==2) {
-      K1 = c(1, -1, rep(0, m))
-      K2 = c(1, -1)
+    if(nb == 2) {
+      K1=  c(1, -1, rep(0, m))
+      K2=  c(1, -1)
     } else {
-      if(nb==3)
+      if(nb == 3)
       { 
-        K1 = c(1, 0, -1, rep(0, m))
-        K2 = c(1, 0, -1)
+        K1=  c(1, 0, -1, rep(0, m))
+        K2=  c(1, 0, -1)
       }
     }
   } else {
-    if(nb==2) {
+    if(nb == 2) {
       if(length(contrast)!=2)
         stop("contrast should be a vector with length of 2")
-      K1 = c(contrast, rep(0, m))
-      K2 = c(contrast)
+      K1=  c(contrast, rep(0, m))
+      K2=  c(contrast)
     } else {
-      if(nb==3)
+      if(nb == 3)
       {
         if(length(contrast)!=3)
           stop("contrast should be a vector with length of 3")
-        K1 = c(contrast, rep(0, m))
-        K2 = c(contrast)
+        K1=  c(contrast, rep(0, m))
+        K2=  c(contrast)
       }
     }
   }
@@ -714,7 +713,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V, sigma.e, sigma.b, sigma.c, nh, contras
     # B	
     B <- solve(sigma.b[, , h])
     
-    # C is nvcov = 0 no C
+    # C is nvcov=  0 no C
     if(!is.null(sigma.c)){
       C <- (1/sigma.c[h]) * diag(ncol(V))
     }else{
@@ -784,7 +783,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V, sigma.e, sigma.b, sigma.c, nh, contras
 #'  
 #'@keywords cluster datasets
 #'@export
-scores.wire <-function(obj,  contrast=NULL,  useZ = TRUE) 
+scores.wire <-function(obj,  contrast=NULL,  useZ=  TRUE) 
 {
   if(obj$nb !=2 && obj$nb !=3) {
     stop("only two or three classes can be compared.")
@@ -793,18 +792,18 @@ scores.wire <-function(obj,  contrast=NULL,  useZ = TRUE)
   # get the sqrt KOK 
   ooo <- eq8.wire(obj$m, obj$g, obj$nb,  obj$X,  obj$W,  obj$U,  obj$V,  obj$sigma.e,  obj$sigma.b,  obj$sigma.c, colSums( obj$tau), contrast)
   # contrasts
-  if(obj$nb ==2){
+  if(obj$nb == 2){
     if(is.null(contrast)){
-      d1d2 = (t(( obj$eb[, 1, ]- obj$eb[, 2, ]))+ ( obj$beta[1, ]- obj$beta[2, ]))/ooo
+      d1d2=  (t(( obj$eb[, 1, ]- obj$eb[, 2, ]))+ ( obj$beta[1, ]- obj$beta[2, ]))/ooo
     }else{ 
-      d1d2 = (t(( obj$eb[, 1, ]  * contrast[1] + obj$eb[, 2, ]  * contrast[2] ))   +  ( obj$beta[1, ] * contrast[1] + obj$beta[2, ] * contrast[2] ))/ooo  
+      d1d2=  (t(( obj$eb[, 1, ]  * contrast[1] + obj$eb[, 2, ]  * contrast[2] ))   +  ( obj$beta[1, ] * contrast[1] + obj$beta[2, ] * contrast[2] ))/ooo  
     }
   }else{ 
     
     if(is.null(contrast)){
-      d1d2 = (t(( obj$eb[, 1, ]- obj$eb[, 3, ]))+ ( obj$beta[1, ]- obj$beta[3, ]))/ooo
+      d1d2=  (t(( obj$eb[, 1, ]- obj$eb[, 3, ]))+ ( obj$beta[1, ]- obj$beta[3, ]))/ooo
     }else{ 
-      d1d2 = (t(( obj$eb[, 1, ] * contrast[1] + obj$eb[, 2, ]  * contrast[2]  + obj$eb[, 3, ]  * contrast[3] ))
+      d1d2=  (t(( obj$eb[, 1, ] * contrast[1] + obj$eb[, 2, ]  * contrast[2]  + obj$eb[, 3, ]  * contrast[3] ))
               +  ( obj$beta[1, ] * contrast[1] + obj$beta[2, ] * contrast[2]  + obj$beta[3, ] * contrast[3] ))/ooo
     }
   }
@@ -932,17 +931,17 @@ wj2.permuted <- function(data, ret, nB=99, contrast=NULL,  seed=1234) {
     ###########################################
     
     # contrasts
-    if(ret$nb ==2){
+    if(ret$nb == 2){
       if(is.null(contrast)){
-        d1d2 = (t(( eb[, 1, ]- eb[, 2, ]))+ ( ret$beta[1, ]- ret$beta[2, ]))/ooo
+        d1d2=  (t(( eb[, 1, ]- eb[, 2, ]))+ ( ret$beta[1, ]- ret$beta[2, ]))/ooo
       }else{ 
-        d1d2 = (t(( eb[, 1, ]  * contrast[1] + eb[, 2, ]  * contrast[2] )) +  ( ret$beta[1, ] * contrast[1] + ret$beta[2, ] * contrast[2] ))/ooo  
+        d1d2=  (t(( eb[, 1, ]  * contrast[1] + eb[, 2, ]  * contrast[2] )) +  ( ret$beta[1, ] * contrast[1] + ret$beta[2, ] * contrast[2] ))/ooo  
       }
     }else{ 
       
       if(is.null(contrast)){
-        d1d2 = (t(( eb[, 1, ]- eb[, 3, ]))+ ( ret$beta[1, ]- ret$beta[3, ]))/ooo
-      }else{d1d2 = (t(( eb[, 1, ] * contrast[1] + eb[, 2, ]  * contrast[2]  + eb[, 3, ]  * contrast[3] ))
+        d1d2=  (t(( eb[, 1, ]- eb[, 3, ]))+ ( ret$beta[1, ]- ret$beta[3, ]))/ooo
+      }else{d1d2=  (t(( eb[, 1, ] * contrast[1] + eb[, 2, ]  * contrast[2]  + eb[, 3, ]  * contrast[3] ))
                     +  ( ret$beta[1, ] * contrast[1] + ret$beta[2, ] * contrast[2]  + ret$beta[3, ] * contrast[3] ))/ooo
       }
     }
@@ -1000,7 +999,7 @@ pvalue.wire <- function(wj, wj0){
 {
     A<-B<-C<-BC<-array(0, dim=c(m, m, g))
     for(h in seq_len(g)){
-        if(ncol(W)>1){
+        if(ncol(W) > 1){
             A[, , h]<-diag(as.vector(W%*%sigma.e[, h]))
         }else{
             A[, , h]<-diag(c(W[, 1]*sigma.e[1, h]))
@@ -1055,7 +1054,7 @@ NULL
 #' @title The map of goldenspike data
 #' @description The map of genes to their S/C values
 #' @usage data(mapping.unique)
-#' @format It is a vector with names = probe set names and values = fold changes,  
+#' @format It is a vector with names=  probe set names and values=  fold changes,  
 #'   with "-1" depicting probe sets whose target RNAs were not spiked in ("empty"),  
 #'  and "-2" marking "mixed" probe sets. In summary,   
 #'  1:  S/C=1,  2535;

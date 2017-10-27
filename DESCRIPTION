@@ -9,9 +9,10 @@ LazyLoad: yes
 NeedsCompilation: yes
 Repository: CRAN
 RoxygenNote: 6.0.1
-Imports: Rcpp (>= 0.12.12), MASS, stats
+Imports: Rcpp (>= 0.12.12), MASS
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++11
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+biocViews: 	Classification, GeneExpression, Microarray, RNASeq, Software, Clustering
