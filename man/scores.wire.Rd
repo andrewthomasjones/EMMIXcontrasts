@@ -11,38 +11,40 @@ scores.wire(obj, contrast = NULL, useZ = TRUE)
 
 \item{contrast}{The vector of the specified contrast.}
 
-\item{useZ}{use the latent variable allocation Z_i (default, TRUE) or the posterior probability (FALSE).}
+\item{useZ}{use the latent variable allocation Z_i (default,  TRUE)
+or the posterior probability (FALSE).}
 }
 \value{
 The vector of the statistic Wj
 }
 \description{
-This function caculates the weighted contrast W_j in order to find out the most significant dfferentially expressed genes.
+This function caculates the weighted contrast W_j 
+in order to find out the most significant dfferentially expressed genes.
 }
 \details{
 The number of classes of samples is either two or three.
 }
 \examples{
- 
+
 \dontrun{
-   
-   dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\\t')
-   
-   rownames(dat) <- seq_len(nrow(dat))
-   
-   ###normalize the rows
-   x <- DoRows(dat)
-   
-   set.seed(12345)
-   
-   ret <-emmixwire(x,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
-                   debug=1,itmax=1000,epsilon=1e-5)
-   
-   ###calculate the W_j
-   wj <- scores.wire(ret,contrast=c(0.5,0.5,-1))
-   
- }
- 
+
+dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
+
+rownames(dat) <- seq_len(nrow(dat))
+
+###normalize the rows
+x <- DoRows(dat)
+
+set.seed(12345)
+
+ret <-emmixwire(x, g = 3, ncov = 3, nvcov = 1, n1 = 5, n2 = 6, n3 = 3, 
+            debug = 1, itmax = 1000, epsilon = 1e-5)
+
+###calculate the W_j
+wj <- scores.wire(ret, contrast = c(0.5, 0.5, -1))
+
+}
+
 }
 \seealso{
 \code{\link{wire.init.fit}} \code{\link{scores.wire}}

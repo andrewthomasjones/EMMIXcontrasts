@@ -7,7 +7,8 @@
 wire.init.reg(dat, X, qe, n, m, g, cluster)
 }
 \arguments{
-\item{dat}{The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data.}
+\item{dat}{The dataset,  an n by m numeric matrix,
+where n is number of observations and m the dimension of data.}
 
 \item{X}{The design matrix.}
 
@@ -19,7 +20,8 @@ wire.init.reg(dat, X, qe, n, m, g, cluster)
 
 \item{g}{The number of components in the mixture model.}
 
-\item{cluster}{A vector of integers specifying the initial partitions of the data.}
+\item{cluster}{A vector of integers specifying the initial partitions 
+of the data.}
 }
 \value{
 A list containing
@@ -31,7 +33,8 @@ A list containing
 \item{lk}{A vector of loglikelihood at each EM iteration}
 }
 \description{
-The routinnes to  fit mixture models to the data and to obtain  initial partition or initial values.
+The routinnes to  fit mixture models to the data and
+to obtain  initial partition or initial values.
 }
 \details{
 These functions are called internally.

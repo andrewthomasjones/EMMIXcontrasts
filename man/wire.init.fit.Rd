@@ -7,7 +7,8 @@
 wire.init.fit(dat, X, qe, n, m, g, nkmeans, nrandom = 0)
 }
 \arguments{
-\item{dat}{The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data.}
+\item{dat}{The dataset,  an n by m numeric matrix,
+where n is number of observations and m the dimension of data.}
 
 \item{X}{The design matrix.}
 
@@ -19,9 +20,11 @@ wire.init.fit(dat, X, qe, n, m, g, nkmeans, nrandom = 0)
 
 \item{g}{The number of components in the mixture model.}
 
-\item{nkmeans}{An integer to specify the number of KMEANS partitions to be used to find the best initial values.}
+\item{nkmeans}{An integer to specify the number of KMEANS partitions
+to be used to find the best initial values.}
 
-\item{nrandom}{An integer to specify the number of random partitions to be used to find the best initial values; the default value is 0.}
+\item{nrandom}{An integer to specify the number of random partitions
+to be used to find the best initial values; the default value is 0.}
 }
 \value{
 A list containing
@@ -33,7 +36,8 @@ A list containing
 \item{lk}{A vector of loglikelihood at each EM iteration}
 }
 \description{
-The routinnes to  fit mixture models to the data and to obtain  initial partition or initial values.
+The routinnes to  fit mixture models to the data and
+to obtain  initial partition or initial values.
 }
 \details{
 These functions are called internally.

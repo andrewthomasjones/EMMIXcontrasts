@@ -7,44 +7,49 @@
 wj2.permuted(data, ret, nB = 99, contrast = NULL, seed = 1234)
 }
 \arguments{
-\item{data}{The dataset, an n by m numeric matrix, where n is number of observations and m the dimension of data}
+\item{data}{The dataset,  an n by m numeric matrix,
+where n is number of observations and m the dimension of data}
 
 \item{ret}{The return list of function emmixwire}
 
 \item{nB}{The number of permutations}
 
-\item{contrast}{A two- or three- dimensional vector the contrast(s) for the class differences}
+\item{contrast}{A two- or three- dimensional vector the contrast(s) 
+for the class differences}
 
 \item{seed}{random seed for the permutations.}
 }
 \value{
-An n by nB matrix with its columns as the statistic Wj for each permutation.
+An n by nB matrix with its columns as the statistic Wj
+for each permutation.
 }
 \description{
-This function caculates the null distribution of the weighted contrast W_j.
+This function caculates the null distribution 
+of the weighted contrast W_j.
 }
 \details{
-The number of classes of samples is either two or three, and 
-the default contrast for two classes is c(1,-1), and three classes c(1,0,-1).
+The number of classes of samples is either two or three,  and 
+the default contrast for two classes is c(1, -1),  
+and three classes c(1, 0, -1).
 }
 \examples{
- \dontrun{
-   
-   dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\\t')
-   rownames(dat) <- seq_len(nrow(dat))
-   set.seed(12345)
-   ret <-emmixwire(dat,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
-                   debug=1,itmax=1000,epsilon=1e-5)
-   
-   ###calculate the W_j
-   wj <- scores.wire(ret,contrast=c(0.5,0.5,-1))
-   
-   ### the null distribution of W_j
-   wj0 <- wj2.permuted(dat,ret,nB=19)
-   ### the p-values of W_j
-   pv  <- pvalue.wire(wj,wj0)
-   
- }
+\dontrun{
+
+dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
+rownames(dat) <- seq_len(nrow(dat))
+set.seed(12345)
+ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=5, n2=6, n3=3, 
+        debug=1, itmax=1000, epsilon=1e-5)
+
+###calculate the W_j
+wj <- scores.wire(ret, contrast=c(0.5, 0.5, -1))
+
+### the null distribution of W_j
+wj0 <- wj2.permuted(dat, ret, nB=19)
+### the p-values of W_j
+pv  <- pvalue.wire(wj, wj0)
+
+}
 }
 \seealso{
 \code{\link{emmixwire}} \code{\link{scores.wire}}.

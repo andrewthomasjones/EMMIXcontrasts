@@ -29,17 +29,20 @@ eq8.wire(m, g, nb, X, W, U, V, sigma.e, sigma.b, sigma.c, nh, contrast)
 
 \item{nh}{A vector with each element as the number of genes in each cluster}
 
-\item{contrast}{The contrast vector, for example, c(1/2,1/2,-1) or c(1,0,-1), etc.}
+\item{contrast}{The contrast vector,  for example, 
+c(1/2, 1/2, -1) or c(1, 0, -1),  etc.}
 }
 \value{
 A vector of lamda values.
 }
 \description{
-This function calculates the lamda values in equation 2.8.
+This function calculates the lamda values
+in equation 2.8.
 }
 \details{
-The default contrast for two classes is c(1,-1), and three classes c(1/2,1/2,-1). 
- And it is called by function \code{scores.wire} and \code{wj2.permuted}.
+The default contrast for two classes is c(1, -1), 
+and three classes c(1/2, 1/2, -1). 
+And it is called by function \code{scores.wire} and \code{wj2.permuted}.
 }
 \seealso{
 \code{\link{wj2.permuted}} \code{\link{scores.wire}}

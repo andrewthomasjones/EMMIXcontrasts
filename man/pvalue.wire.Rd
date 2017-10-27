@@ -7,40 +7,44 @@
 pvalue.wire(wj, wj0)
 }
 \arguments{
-\item{wj}{The weighted contrast W_j, output of \code{\link{scores.wire}}.}
+\item{wj}{The weighted contrast W_j,  output of \code{\link{scores.wire}}.}
 
-\item{wj0}{The null distribution for W_j, output of \code{\link{wj2.permuted}}.}
+\item{wj0}{The null distribution for W_j,
+output of \code{\link{wj2.permuted}}.}
 }
 \value{
 A vector of p-values.
 }
 \description{
-This function caculates the p-values of the weighted contrast W_j.
+This function caculates the p-value of the weighted contrast,
+W_j.
 }
 \details{
-The p-values relate to the tests set by the contrast in \code{\link{scores.wire}}.
+The p-values relate to the tests set by the
+contrast in \code{\link{scores.wire}}.
 }
 \examples{
- \dontrun{
-   
-   dat <- read.table("GSE36703_37628_col.txt",header=FALSE,sep='\\t')
-   rownames(dat) <- seq_len(nrow(dat))
-   set.seed(12345)
-   ret <-emmixwire(dat,g=3,ncov=3,nvcov=1,n1=5,n2=6,n3=3,
-                   debug=1,itmax=1000,epsilon=1e-5)
-   
-   ###calculate the W_j
-   wj <- scores.wire(ret,contrast=c(0.5,0.5,-1))
-   
-   ### the null distribution of W_j
-   wj0 <- wj2.permuted(dat,ret,nB=19)
-   ### the p-values of W_j
-   pv  <- pvalue.wire(wj,wj0)
-   
- }
+\dontrun{
+
+dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
+rownames(dat) <- seq_len(nrow(dat))
+set.seed(12345)
+ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=5, n2=6, n3=3, 
+        debug=1, itmax=1000, epsilon=1e-5)
+
+###calculate the W_j
+wj <- scores.wire(ret, contrast=c(0.5, 0.5, -1))
+
+### the null distribution of W_j
+wj0 <- wj2.permuted(dat, ret, nB=19)
+### the p-values of W_j
+pv  <- pvalue.wire(wj, wj0)
+
+}
 }
 \seealso{
-\code{\link{emmixwire}} \code{\link{scores.wire}}  \code{\link{wj2.permuted}}.
+\code{\link{emmixwire}} \code{\link{scores.wire}}
+\code{\link{wj2.permuted}}.
 }
 \keyword{cluster}
 \keyword{datasets}
