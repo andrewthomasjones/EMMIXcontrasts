@@ -139,6 +139,7 @@ NULL
     # controls
     flag<-error<-0
     lk<-rep(0, itmax)
+    lk2<-rep(0, itmax)
     
     oldpro<-pro
     nbeta<-beta
@@ -149,6 +150,7 @@ NULL
     xxx<-ginv(t(X)%*%X)%*%t(X)
     mu<-matrix(0, ncol=g, nrow=m)
     
+    mu2<-matrix(0, ncol=g, nrow=m)
     #main EM loop
     
     for(i in seq_len(itmax))
@@ -163,17 +165,47 @@ NULL
             mu[, h] <- as.vector(X%*%beta[, h])
         }
         
+        
+        
+        
         # E-step
         eobj<-.tau.estep.wire(dat, oldpro, mu, BC, n, m, g)
+        
+        
+        
+        
+        
+        
+       
+        
         pro<-eobj$pro
         tau<-eobj$tau
         lk[i] <-eobj$loglik
+        
         sumtau<- colSums(tau)
         M<-.matM.wire(B, C, tau, g, m)
         obj1 <- .eb.estep(tau, dat, mu, sigma.b, U, B, C, M, g, n, m, qb)
         obj2 <- .ec.estep(tau, dat, mu, sigma.c, V, M, g, n, qc)
         obj3 <- .ee.estep(dat, mu, tau, U, V, W, A, 
                 obj1$invB, M, g, n, m, qe, dw, obj1$eb1, obj2$ec1)
+        
+        
+        BC2<- B
+        for(h in seq_len(g)) {
+          mu2[, h] <- mu[,h] - as.vector(V%*%obj2$ec1[, h])
+        }
+        
+        eobj2<-.tau.estep.wire(dat, oldpro, mu2, BC2, n, m, g)
+        
+        lk2[i] <-eobj2$loglik
+        
+        
+        
+        
+        
+        
+        
+        
         # M-step
         
         if(ncov > 0){
@@ -252,8 +284,8 @@ NULL
     AIC<--2*loglik+np*2
     
     if(debug){
-        message('\n', g, "BIC=", BIC, "AIC=", AIC, 
-        "\nloglik=", loglik, "np=", np)
+        message(paste('\n', g, "BIC=", BIC, "AIC=", AIC, 
+        "\nloglik=", loglik, "np=", np))
     }
     
     #return values
@@ -262,6 +294,7 @@ NULL
                 BIC=BIC, AIC=AIC, cluster=cluster, 
                 pro=pro, beta=beta, sigma.e=  sigma.e)
     ret$lk=lk[lk!=0]
+    ret$lk2=lk2[lk2!=0]
     ret$tau=eobj2$tau
     
     if(ncov == 1||ncov == 2||ncov == 3||ncov == 4||ncov == 5)
@@ -755,8 +788,10 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
             A <- diag(1/c(W[, 1]*sigma.e[1, h]))
         
         # B    
-        B <- solve(sigma.b[, , h])
+        #B <- solve(sigma.b[, , h])
         
+        B<-.r.solve(sigma.b[, , h])
+       
         # C is nvcov=  0 no C
         if(!is.null(sigma.c)){
             C <- (1/sigma.c[h]) * diag(ncol(V))
@@ -764,7 +799,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
             C <- 0 * diag(ncol(V))
         }
         # E
-        E <- solve(t(U) %*% A %*% U + B)
+        E <- .r.solve(t(U) %*% A %*% U + B)
         #XVAU
         XVAU <- t(XV)%*%(A%*%U)
         
@@ -775,9 +810,8 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
         P[2+seq_len(m), 2+seq_len(m)] <- P[2+seq_len(m), 2+seq_len(m)] + C
         
         P <- P - XVAU %*% E %*% t(XVAU)
-        #P sometimes singular
-        P <- ginv(P)/nh[h]
-        
+        P <- .r.solve(P)/nh[h]
+       
         #KOK
         XVAUEK <- XVAU %*% E %*% K2
         KOK <- (t(K1)-t(XVAUEK)) %*% P %*% K1
@@ -1069,6 +1103,30 @@ pvalue.wire <- function(wj, wj0){
         }
     }
     return(list(A=A, B=B, C=C, BC=BC))
+}
+NULL
+
+#solves matrices nicer so less error
+.r.solve<-function(M){
+    M1<-try(solve(M), silent = TRUE)
+    M2<-try(ginv(M), silent = TRUE)
+    flag = FALSE
+    
+    if(class(M1)!="try-error"){
+        M<-M1
+        flag<-TRUE
+    }
+    
+    if(class(M2)!="try-error"){
+        M<-M2
+        flag<-TRUE
+    }
+    
+    if(!flag){
+        M<-NULL #this will cause it to QUIT
+    }
+    
+    return(M)
 }
 NULL
 #'@title The goldenspike gene expression dataset
