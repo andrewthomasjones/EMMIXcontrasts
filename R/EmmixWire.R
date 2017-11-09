@@ -246,11 +246,11 @@ NULL
         oldpro <- pro
         
         if(i <= 10) next            
-        if(log){
-            if(abs(lk[i]-lk[i-10])<epsilon*abs(lk[i-10])) {flag<-1;break}
-        } else {
-            if(max(abs(c(nbeta-beta, pro-oldpro))) < epsilon) {flag<-1;break}
-        }
+            if(log){
+                if(abs(lk[i]-lk[i-10])<epsilon*abs(lk[i-10])) {flag<-1;break}
+            } else {
+                if(max(abs(c(nbeta-beta, pro-oldpro))) < epsilon) {flag<-1;break}
+            }
         
     } # end of loop 
     
@@ -344,7 +344,7 @@ wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
     {
         cluster<-rep(1, n)        
         if(g > 1){
-            cluster<- kmeans(dat, g, nstart=5)$cluster
+            cluster<- suppressWarnings(kmeans(dat, g, nstart=5, algorithm="Lloyd", iter.max = 10)$cluster)
         }
         wire.init.reg(dat, X, qe, n, m, g, cluster)
     }
@@ -682,7 +682,7 @@ emmixwire<-function(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
     }
     
     if(length(found)<4){
-        stop("not found inital values")
+        stop("Inital values not found.")
     }
     
     #part 2: call the main estimate procedure
