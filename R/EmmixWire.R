@@ -53,7 +53,7 @@ NULL
     #
     for(h in seq_len(g))
     {
-        ec1[, h]<-sigma.c[h]*t(V)%*%M[, , h]%*%colSums(t(t(y)-mu[, h])*tau[, h])
+        ec1[, h]<-sigma.c[h]*t(V)%*%M[,,h]%*%colSums(t(t(y)-mu[, h])*tau[,h])
         kc[h] <-sigma.c[h]*qc-sum(diag(t(V)%*%M[, , h]%*%V))*
             (sigma.c[h]^2*sum(tau[, h]))
         ec2[h]<-c(t(ec1[, h])%*%ec1[, h]+kc[h])/qc
@@ -76,10 +76,10 @@ NULL
         for(id in seq_len(ncol(W)))
         {
             AL<-A[, , h]*W[, id]
-            ke[h]<-(sum(tau[, h])*sum(diag(AL))-sum(diag(t(AL)%*%M[, , h]%*%AL))
-                -(sum(tau[, h])-1)*sum(diag( t(AL)%*%invB[, , h]%*%AL)))
+            ke[h]<-(sum(tau[,h])*sum(diag(AL))-sum(diag(t(AL)%*%M[,,h]%*%AL))
+                -(sum(tau[,h])-1)*sum(diag( t(AL)%*%invB[,,h]%*%AL)))
             
-            thet[id, h]<-( sum(c(t((t(ee[, , h])*W[, id])^2)*tau[, h]))+ke[h])/
+            thet[id, h]<-( sum(c(t((t(ee[,,h])*W[,id])^2)*tau[, h]))+ke[h])/
                 (mi[id]*sum(tau[, h]))
         }# end of loop
     } #end of loop
@@ -170,14 +170,6 @@ NULL
         
         # E-step
         eobj<-.tau.estep.wire(dat, oldpro, mu, BC, n, m, g)
-        
-        
-        
-        
-        
-        
-       
-        
         pro<-eobj$pro
         tau<-eobj$tau
         lk[i] <-eobj$loglik
@@ -192,20 +184,12 @@ NULL
         
         BC2<- B
         for(h in seq_len(g)) {
-          mu2[, h] <- mu[,h] - as.vector(V%*%obj2$ec1[, h])
+            mu2[, h] <- mu[,h] - as.vector(V%*%obj2$ec1[, h])
         }
         
         eobj2<-.tau.estep.wire(dat, oldpro, mu2, BC2, n, m, g)
         
         lk2[i] <-eobj2$loglik
-        
-        
-        
-        
-        
-        
-        
-        
         # M-step
         
         if(ncov > 0){
@@ -249,7 +233,7 @@ NULL
             if(log){
                 if(abs(lk[i]-lk[i-10])<epsilon*abs(lk[i-10])) {flag<-1;break}
             } else {
-                if(max(abs(c(nbeta-beta, pro-oldpro))) < epsilon) {flag<-1;break}
+                if(max(abs(c(nbeta-beta, pro-oldpro)))<epsilon){flag<-1;break}
             }
         
     } # end of loop 
@@ -344,7 +328,8 @@ wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
     {
         cluster<-rep(1, n)        
         if(g > 1){
-            cluster<- suppressWarnings(kmeans(dat, g, nstart=5, algorithm="Lloyd", iter.max = 10)$cluster)
+            cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
+            algorithm="Lloyd", iter.max = 10)$cluster)
         }
         wire.init.reg(dat, X, qe, n, m, g, cluster)
     }
@@ -500,7 +485,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'to be used to find the best initial values.
 #'@param nrandom An integer to specify the number of random partitions
 #'to be used to find the best initial values.
-#'@param debug A logical value,  if it is TRUE,  the output will be printed out;
+#'@param debug A logical value,  if it is TRUE, theoutput will be printed out;
 #'FALSE silent; the default value is FALSE.
 
 #'@details  The combination of ncov and nvcov defines the covariance structure 
@@ -791,7 +776,6 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
         #B <- solve(sigma.b[, , h])
         
         B<-.r.solve(sigma.b[, , h])
-       
         # C is nvcov=  0 no C
         if(!is.null(sigma.c)){
             C <- (1/sigma.c[h]) * diag(ncol(V))
@@ -811,7 +795,6 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
         
         P <- P - XVAU %*% E %*% t(XVAU)
         P <- .r.solve(P)/nh[h]
-       
         #KOK
         XVAUEK <- XVAU %*% E %*% K2
         KOK <- (t(K1)-t(XVAUEK)) %*% P %*% K1
@@ -971,7 +954,7 @@ wj2.permuted <- function(data, ret, nB=99, contrast=NULL,  seed=1234) {
         mu[, h] <- as.vector(X %*% ret$beta[, h])
     }
 
-    mobj <- .mat.ABC.wire(U, VV, W, ret$sigma.e, ret$sigma.b, ret$sigma.c, g, m)
+    mobj<-.mat.ABC.wire(U, VV, W, ret$sigma.e, ret$sigma.b, ret$sigma.c, g, m)
     A <- mobj$A
     B <- mobj$B
     C <- mobj$C

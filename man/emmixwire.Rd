@@ -42,7 +42,7 @@ the default is NULL.}
 \item{init}{A list containing the initial parameters for the mixture model. 
 See details. The default value is NULL.}
 
-\item{debug}{A logical value,  if it is TRUE,  the output will be printed out;
+\item{debug}{A logical value,  if it is TRUE, theoutput will be printed out;
 FALSE silent; the default value is FALSE.}
 
 \item{itmax}{A big integer specifying the maximum number of iterations to 
