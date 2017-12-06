@@ -1,7 +1,7 @@
 Package: EMMIXcontrasts2
-Title: Contrasts in Mixed Effects for EMMIX Model with Random Effects 2
+Title: Contrasts in Mixed Effects for EMMIX Model with Random Effects
 Description: For forming contrasts in the mixed effects for mixtures of linear mixed models fitted to the gene profiles. 
-Version: 0.2.6
+Version: 0.99.0
 Author: Angus Ng, Geoff McLachlan, Kui Wang, Andrew Jones
 Maintainer: Andrew Jones <andrewthomasjones@gmail.com>
 License: GPL-2 | GPL-3
@@ -15,6 +15,8 @@ Imports: Rcpp (>= 0.12.12),
 LinkingTo: Rcpp,
     RcppArmadillo
 SystemRequirements: C++11
+Depends:
+  R (>= 3.5.0)
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
