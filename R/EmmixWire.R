@@ -296,6 +296,28 @@ NULL
     return(ret)
 }
 
+
+
+
+wire.init.km<-function(dat, X, qe, n, m, g)
+{
+    cluster<-rep(1, n)        
+    if(g > 1){
+        cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
+                                          algorithm="Lloyd", iter.max = 10)$cluster)
+    }
+    wire.init.reg(dat, X, qe, n, m, g, cluster)
+}
+
+wire.init.rd<-function(dat, X, qe, n, m, g)
+{
+    cluster<-rep(1, n)        
+    if(g > 1){
+        cluster<- sample(seq_len(g), n, replace=TRUE)
+    }
+    wire.init.reg(dat, X, qe, n, m, g, cluster)
+}
+
 #'@name wire.init.fit
 #'@title Get the initial values
 #'@description The routinnes to  fit mixture models to the data and
@@ -323,25 +345,7 @@ NULL
 #'@keywords cluster datasets
 wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
 {
-    wire.init.km<-function(dat, X, qe, n, m, g)
-    {
-        cluster<-rep(1, n)        
-        if(g > 1){
-            cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
-            algorithm="Lloyd", iter.max = 10)$cluster)
-        }
-        wire.init.reg(dat, X, qe, n, m, g, cluster)
-    }
-    
-    wire.init.rd<-function(dat, X, qe, n, m, g)
-    {
-        cluster<-rep(1, n)        
-        if(g > 1){
-            cluster<- sample(seq_len(g), n, replace=TRUE)
-        }
-        wire.init.reg(dat, X, qe, n, m, g, cluster)
-    }
-    
+
     found<-NULL
     found$loglik<- -Inf
     
