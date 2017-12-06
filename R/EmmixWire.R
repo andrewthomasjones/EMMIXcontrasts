@@ -3,6 +3,25 @@
 #'@importFrom MASS ginv
 NULL
 
+#' EMMIXcontrasts: 
+#'
+#' For forming contrasts in the mixed effects for mixtures of linear mixed
+#' models fitted to the gene profiles. This enables the detection of
+#' differentially expressed genes in a wide variety of experimental settings. 
+#' Functions to generat p-values based on the empirical null distribution are
+#' also provided. 
+#' 
+#' @section Functions:
+#'\code{\link{emmixwire}}: Fits a mixtures of linear mixed models to the dataset.
+#'\code{\link{scores.wire}}: Computes the contrasts.
+#'\code{\link{wj2.permuted}}: Estimates the null distribution.
+#'\code{\link{pvalue.wire}}: Calcualtes the p-values.
+#'
+#' @docType package
+#' @name EMMIXcontrasts2
+NULL
+
+
 #E-step
 .tau.estep.wire<-function(dat, pro, mu, sigma, n, m, g)
 {
@@ -296,6 +315,28 @@ NULL
     return(ret)
 }
 
+
+
+
+wire.init.km<-function(dat, X, qe, n, m, g)
+{
+    cluster<-rep(1, n)        
+    if(g > 1){
+        cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
+                                          algorithm="Lloyd", iter.max = 10)$cluster)
+    }
+    wire.init.reg(dat, X, qe, n, m, g, cluster)
+}
+
+wire.init.rd<-function(dat, X, qe, n, m, g)
+{
+    cluster<-rep(1, n)        
+    if(g > 1){
+        cluster<- sample(seq_len(g), n, replace=TRUE)
+    }
+    wire.init.reg(dat, X, qe, n, m, g, cluster)
+}
+
 #'@name wire.init.fit
 #'@title Get the initial values
 #'@description The routinnes to  fit mixture models to the data and
@@ -323,25 +364,7 @@ NULL
 #'@keywords cluster datasets
 wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
 {
-    wire.init.km<-function(dat, X, qe, n, m, g)
-    {
-        cluster<-rep(1, n)        
-        if(g > 1){
-            cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
-            algorithm="Lloyd", iter.max = 10)$cluster)
-        }
-        wire.init.reg(dat, X, qe, n, m, g, cluster)
-    }
-    
-    wire.init.rd<-function(dat, X, qe, n, m, g)
-    {
-        cluster<-rep(1, n)        
-        if(g > 1){
-            cluster<- sample(seq_len(g), n, replace=TRUE)
-        }
-        wire.init.reg(dat, X, qe, n, m, g, cluster)
-    }
-    
+
     found<-NULL
     found$loglik<- -Inf
     
