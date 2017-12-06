@@ -26,7 +26,7 @@ The number of classes of samples is either two or three.
 }
 \examples{
 
-\dontrun{
+
 
 dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
 
@@ -34,7 +34,7 @@ rownames(dat) <- seq_len(nrow(dat))
 
 ###normalize the rows
 x <- DoRows(dat)
-
+x<-x[1:500,] # for speed
 set.seed(12345)
 
 ret <-emmixwire(x, g = 3, ncov = 3, nvcov = 1, n1 = 5, n2 = 6, n3 = 3, 
@@ -43,7 +43,7 @@ ret <-emmixwire(x, g = 3, ncov = 3, nvcov = 1, n1 = 5, n2 = 6, n3 = 3,
 ###calculate the W_j
 wj <- scores.wire(ret, contrast = c(0.5, 0.5, -1))
 
-}
+
 
 }
 \seealso{

@@ -18,9 +18,10 @@ SystemRequirements: C++11
 Depends:
   R (>= 3.5.0)
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
-biocViews: 	Classification,
+biocViews: Classification,
     GeneExpression,
     Microarray,
     RNASeq,

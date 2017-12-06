@@ -24,7 +24,7 @@ The p-values relate to the tests set by the
 contrast in \code{\link{scores.wire}}.
 }
 \examples{
-\dontrun{
+
 
 dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
 rownames(dat) <- seq_len(nrow(dat))
@@ -40,7 +40,7 @@ wj0 <- wj2.permuted(dat, ret, nB=19)
 ### the p-values of W_j
 pv  <- pvalue.wire(wj, wj0)
 
-}
+
 }
 \seealso{
 \code{\link{emmixwire}} \code{\link{scores.wire}}

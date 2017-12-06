@@ -321,7 +321,6 @@ NULL
 #'\item{lk}{A vector of loglikelihood at each EM iteration}
 #'@seealso \code{\link{emmixwire}}
 #'@keywords cluster datasets
-#'@export
 wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
 {
     wire.init.km<-function(dat, X, qe, n, m, g)
@@ -396,7 +395,6 @@ wire.init.fit<-function(dat, X, qe, n, m, g, nkmeans, nrandom=0)
 #'\item{lk}{A vector of loglikelihood at each EM iteration}
 #'@seealso \code{\link{emmixwire}}
 #'@keywords cluster datasets
-#'@export
 wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 {
     # set x for regression
@@ -530,7 +528,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'S., & Ng, S. W. (2014). Inference on differences between classes using
 #'cluster-specific contrasts of mixed effects. Biostatistics, 16(1), 98-112.
 #'@examples 
-#'\dontrun{
+#'
 #'data(expr.norm)
 #'data(mapping.unique)
 #'
@@ -581,7 +579,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #'#119
 #'hist(pv, 50)
-#'}
+#'
 
 
 #'@export
@@ -818,7 +816,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'@seealso \code{\link{wire.init.fit}} \code{\link{scores.wire}}
 #'@examples
 #'
-#'\dontrun{
+#'
 #'
 #'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
 #'
@@ -826,7 +824,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'
 #'###normalize the rows
 #'x <- DoRows(dat)
-#'
+#'x<-x[1:500,] # for speed
 #'set.seed(12345)
 #'
 #'ret <-emmixwire(x, g = 3, ncov = 3, nvcov = 1, n1 = 5, n2 = 6, n3 = 3, 
@@ -835,7 +833,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'###calculate the W_j
 #'wj <- scores.wire(ret, contrast = c(0.5, 0.5, -1))
 #'
-#'}
+#'
 #'
 #'@keywords cluster datasets
 #'@export
@@ -912,7 +910,7 @@ NULL
 #'for each permutation.
 #'@seealso \code{\link{emmixwire}} \code{\link{scores.wire}}.
 #'@examples
-#'\dontrun{
+#'
 #'
 #'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
 #'rownames(dat) <- seq_len(nrow(dat))
@@ -928,7 +926,7 @@ NULL
 #'### the p-values of W_j
 #'pv  <- pvalue.wire(wj, wj0)
 #'
-#'}
+#'
 #'@keywords cluster datasets
 #'@export
 wj2.permuted <- function(data, ret, nB=99, contrast=NULL,  seed=1234) {
@@ -1038,7 +1036,7 @@ NULL
 #'@seealso \code{\link{emmixwire}} \code{\link{scores.wire}}
 #'\code{\link{wj2.permuted}}.
 #'@examples
-#'\dontrun{
+#'
 #'
 #'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
 #'rownames(dat) <- seq_len(nrow(dat))
@@ -1054,7 +1052,7 @@ NULL
 #'### the p-values of W_j
 #'pv  <- pvalue.wire(wj, wj0)
 #'
-#'}
+#'
 #'@keywords cluster datasets
 #'@export
 pvalue.wire <- function(wj, wj0){    
@@ -1122,6 +1120,8 @@ NULL
 #'@usage data(expr.norm)
 #'@source http://www2.ccr.buffalo.edu/halfon/spike/spikedownloads.html
 #'@format A data frame with 14010 rows (genes) and 6 variables (samples).
+#'@examples 
+#'data(expr.norm)
 NULL
 
 #'@title The Hendenfalk breast cancer dataset.
@@ -1133,7 +1133,7 @@ NULL
 #'@format This is a 3226 by 15 matrix. The first seven columns are from class I
 #'and last eight columns are from class II.  
 #'@examples
-#'\dontrun{
+#'
 #'data(hedenlc)
 #'###
 #'set.seed(123456)
@@ -1145,7 +1145,7 @@ NULL
 #'#load("ret3.rbin")
 #'### calculate the weighted contrasts W_j
 #'Wj  <- scores.wire(obj)
-#'}
+#'
 NULL
 #'@name mapping.unique
 #'@docType data

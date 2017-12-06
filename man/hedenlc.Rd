@@ -13,7 +13,7 @@ data(hedenlc)
 These data are column normalized
 }
 \examples{
-\dontrun{
+
 data(hedenlc)
 ###
 set.seed(123456)
@@ -25,6 +25,6 @@ obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8,
 #load("ret3.rbin")
 ### calculate the weighted contrasts W_j
 Wj  <- scores.wire(obj)
-}
+
 }
 \keyword{datasets}

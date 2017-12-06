@@ -14,4 +14,7 @@ data(expr.norm)
 \description{
 A dataset containing the goldenspike data "10a.dat".
 }
+\examples{
+data(expr.norm)
+}
 \keyword{datasets}

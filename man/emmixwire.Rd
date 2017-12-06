@@ -104,7 +104,7 @@ sigma(h)*I(m)(diagonal scale parameter matrix with same
 identical diagonal element values).
 }
 \examples{
-\dontrun{
+
 data(expr.norm)
 data(mapping.unique)
 
@@ -155,7 +155,7 @@ wire.1000 <- names(map)[order(pv, decreasing=0)][1:1000]
 sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #119
 hist(pv, 50)
-}
+
 }
 \references{
 [1] Ng, S. K., McLachlan, G. J., Wang, K., Nagymanyoki, Z., Liu,

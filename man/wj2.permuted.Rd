@@ -33,7 +33,7 @@ the default contrast for two classes is c(1, -1),
 and three classes c(1, 0, -1).
 }
 \examples{
-\dontrun{
+
 
 dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
 rownames(dat) <- seq_len(nrow(dat))
@@ -49,7 +49,7 @@ wj0 <- wj2.permuted(dat, ret, nB=19)
 ### the p-values of W_j
 pv  <- pvalue.wire(wj, wj0)
 
-}
+
 }
 \seealso{
 \code{\link{emmixwire}} \code{\link{scores.wire}}.
