@@ -757,7 +757,6 @@ emmixwire<-function(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
 #'And it is called by function \code{scores.wire} and \code{wj2.permuted}.
 #'@return A vector of lamda values.
 #'@seealso \code{\link{wj2.permuted}} \code{\link{scores.wire}}
-#'@export
 eq8.wire <-function(m, g, nb, X, W, U, V, 
                     sigma.e, sigma.b, sigma.c, nh, contrast)
 {
