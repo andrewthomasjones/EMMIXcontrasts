@@ -7,16 +7,25 @@
 \title{EMMIXcontrasts:}
 \description{
 For forming contrasts in the mixed effects for mixtures of linear mixed
-models fitted to the gene profiles. This enables the detection of
+models fitted to the gene profiles as described in 
+Ng, S. K., McLachlan, G. J., Wang, K., Nagymanyoki, Z., Liu, S., & Ng, S. W.
+(2014). Inference on differences between classes using cluster-specific
+contrasts of mixed effects. Biostatistics, 16(1), 98-112. 
+This enables the detection of
 differentially expressed genes in a wide variety of experimental settings. 
 Functions to generat p-values based on the empirical null distribution are
 also provided.
 }
-\section{Functions}{
+\section{Main Functions}{
 
-\code{\link{emmixwire}}: Fits a mixtures of linear mixed models to the dataset.
+\code{\link{emmixwire}}: Fits a mixture of linear mixed models to the dataset.
+
 \code{\link{scores.wire}}: Computes the contrasts.
+
 \code{\link{wj2.permuted}}: Estimates the null distribution.
+
 \code{\link{pvalue.wire}}: Calcualtes the p-values.
+
+See \code{vignette('EMMIXContrasts-An-Introduction')} for more details.
 }
 
