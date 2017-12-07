@@ -30,7 +30,7 @@ data(hedenlc)
 hedenlc<-hedenlc[1:100,] #for speed
 set.seed(123456)
 obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8, 
-     debug=1, itmax=1000, epsilon=1e-4) 
+     debug=1, itmax=20, epsilon=1e-4) 
 # calculate the weighted contrasts W_j
 Wj  <- scores.wire(obj)
 

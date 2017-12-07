@@ -26,14 +26,15 @@ contrast in \code{\link{scores.wire}}.
 \examples{
 
 
-dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\\t')
-rownames(dat) <- seq_len(nrow(dat))
+data(hedenlc)
+dat<-hedenlc[1:100,] #for speed
+
 set.seed(12345)
-ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=5, n2=6, n3=3, 
-        debug=1, itmax=1000, epsilon=1e-5)
+ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8, 
+        debug=1, itmax=20, epsilon=1e-5)
 
 ###calculate the W_j
-wj <- scores.wire(ret, contrast=c(0.5, 0.5, -1))
+wj <- scores.wire(ret, contrast=c(1, -1))
 
 ### the null distribution of W_j
 wj0 <- wj2.permuted(dat, ret, nB=19)

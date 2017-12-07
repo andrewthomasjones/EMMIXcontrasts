@@ -127,7 +127,7 @@ map=  map[map>=-1]
 y  <- log(dat)
 set.seed(123)
 ret <- emmixwire(y, g=3, ncov=3, nvcov=1, n1=3, n2=3, n3=0, 
-        debug=0, itmax=1000, epsilon=1e-5, nkmeans=5)
+        debug=0, itmax=20, epsilon=1e-5, nkmeans=5)
 
 ### alternatively,  
 #X <- U <- cbind(c(1, 1, 1, 0, 0, 0), c(0, 0, 0, 1, 1, 1))
@@ -135,7 +135,7 @@ ret <- emmixwire(y, g=3, ncov=3, nvcov=1, n1=3, n2=3, n3=0,
 #V<-diag(m)
 #W <-rep(1, m)
 #ret <- emmixwire(y, g=3, ncov=3, nvcov=1, X=X, W=W, U=U, V=V, 
-#    debug=0, itmax=1000, epsilon=1e-5, nkmeans=5)
+#    debug=0, itmax=20, epsilon=1e-5, nkmeans=5)
 
 ###calculate the weighted contrast W_j
 wj <- scores.wire(ret)

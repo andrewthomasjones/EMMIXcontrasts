@@ -582,7 +582,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'y  <- log(dat)
 #'set.seed(123)
 #'ret <- emmixwire(y, g=3, ncov=3, nvcov=1, n1=3, n2=3, n3=0, 
-#'         debug=0, itmax=1000, epsilon=1e-5, nkmeans=5)
+#'         debug=0, itmax=20, epsilon=1e-5, nkmeans=5)
 #'
 #'### alternatively,  
 #'#X <- U <- cbind(c(1, 1, 1, 0, 0, 0), c(0, 0, 0, 1, 1, 1))
@@ -590,7 +590,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'#V<-diag(m)
 #'#W <-rep(1, m)
 #'#ret <- emmixwire(y, g=3, ncov=3, nvcov=1, X=X, W=W, U=U, V=V, 
-#'#    debug=0, itmax=1000, epsilon=1e-5, nkmeans=5)
+#'#    debug=0, itmax=20, epsilon=1e-5, nkmeans=5)
 #'
 #'###calculate the weighted contrast W_j
 #'wj <- scores.wire(ret)
@@ -850,7 +850,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'hedenlc<-hedenlc[1:100,] #for speed
 #'set.seed(123456)
 #'obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8, 
-#'      debug=1, itmax=1000, epsilon=1e-4) 
+#'      debug=1, itmax=20, epsilon=1e-4) 
 #'# calculate the weighted contrasts W_j
 #'Wj  <- scores.wire(obj)
 #'
@@ -929,16 +929,15 @@ NULL
 #'for each permutation.
 #'@seealso \code{\link{emmixwire}} \code{\link{scores.wire}}.
 #'@examples
+#'data(hedenlc)
+#'dat<-hedenlc[1:100,] #for speed
+#'set.seed(123456)
 #'
-#'
-#'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
-#'rownames(dat) <- seq_len(nrow(dat))
-#'set.seed(12345)
-#'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=5, n2=6, n3=3, 
-#'         debug=1, itmax=1000, epsilon=1e-5)
+#'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8,
+#'    debug=1, itmax=20, epsilon=1e-5)
 #'
 #'###calculate the W_j
-#'wj <- scores.wire(ret, contrast=c(0.5, 0.5, -1))
+#'wj <- scores.wire(ret, contrast=c(1, -1))
 #'
 #'### the null distribution of W_j
 #'wj0 <- wj2.permuted(dat, ret, nB=19)
@@ -1057,14 +1056,15 @@ NULL
 #'@examples
 #'
 #'
-#'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
-#'rownames(dat) <- seq_len(nrow(dat))
+#'data(hedenlc)
+#'dat<-hedenlc[1:100,] #for speed
+#'
 #'set.seed(12345)
-#'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=5, n2=6, n3=3, 
-#'         debug=1, itmax=1000, epsilon=1e-5)
+#'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8, 
+#'         debug=1, itmax=20, epsilon=1e-5)
 #'
 #'###calculate the W_j
-#'wj <- scores.wire(ret, contrast=c(0.5, 0.5, -1))
+#'wj <- scores.wire(ret, contrast=c(1, -1))
 #'
 #'### the null distribution of W_j
 #'wj0 <- wj2.permuted(dat, ret, nB=19)
@@ -1157,7 +1157,7 @@ NULL
 #'###
 #'set.seed(123456)
 #'obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8, 
-#'             debug=1, itmax=1000, epsilon=1e-4) 
+#'             debug=1, itmax=20, epsilon=1e-4) 
 #'### to save the estimation results for later use
 #'#save(obj, file="ret3.rbin")
 #'###reload the results
