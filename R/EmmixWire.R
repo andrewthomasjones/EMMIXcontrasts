@@ -846,24 +846,13 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'@seealso \code{\link{wire.init.fit}} \code{\link{scores.wire}}
 #'@examples
 #'
-#'
-#'
-#'dat <- read.table("GSE36703_37628_col.txt", header=FALSE, sep='\t')
-#'
-#'rownames(dat) <- seq_len(nrow(dat))
-#'
-#'###normalize the rows
-#'x <- DoRows(dat)
-#'x<-x[1:500,] # for speed
-#'set.seed(12345)
-#'
-#'ret <-emmixwire(x, g = 3, ncov = 3, nvcov = 1, n1 = 5, n2 = 6, n3 = 3, 
-#'             debug = 1, itmax = 1000, epsilon = 1e-5)
-#'
-#'###calculate the W_j
-#'wj <- scores.wire(ret, contrast = c(0.5, 0.5, -1))
-#'
-#'
+#'data(hedenlc)
+#'hedenlc<-hedenlc[1:100,] #for speed
+#'set.seed(123456)
+#'obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8, 
+#'      debug=1, itmax=1000, epsilon=1e-4) 
+#'# calculate the weighted contrasts W_j
+#'Wj  <- scores.wire(obj)
 #'
 #'@keywords cluster datasets
 #'@export
