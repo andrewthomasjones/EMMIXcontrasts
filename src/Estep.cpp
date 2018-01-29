@@ -78,7 +78,7 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   }
   
   
-  double LL = arma::accu(arma::trunc_log(arma::sum(tau,0)));
+  double LL = arma::accu(arma::log(arma::sum(tau,0)));
  
 
   tau2 = tau.each_row() / arma::sum(tau,0);
