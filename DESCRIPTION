@@ -15,7 +15,7 @@ LinkingTo: Rcpp,
     RcppArmadillo
 SystemRequirements: C++11
 Depends:
-  R (>= 3.5.0)
+  R (>= 3.4.0)
 Suggests: knitr,
     rmarkdown,
     testthat
