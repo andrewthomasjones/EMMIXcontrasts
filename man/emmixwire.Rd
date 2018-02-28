@@ -4,16 +4,19 @@
 \alias{emmixwire}
 \title{The EMMIX model with random effects}
 \usage{
-emmixwire(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
-  X = NULL, W = NULL, U = NULL, V = NULL, cluster = NULL,
-  init = NULL, debug = FALSE, itmax = 1000, epsilon = 1e-05,
-  nkmeans = 5, nrandom = 0)
+emmixwire(dat, g = "BIC", maxg = 10, ncov = 3, nvcov = 0, n1 = 0,
+  n2 = 0, n3 = 0, X = NULL, W = NULL, U = NULL, V = NULL,
+  cluster = NULL, init = NULL, debug = FALSE, itmax = 1000,
+  epsilon = 1e-05, nkmeans = 5, nrandom = 0)
 }
 \arguments{
 \item{dat}{The dataset,  an n by m numeric matrix, 
 where n is number of observations and m the dimension of data.}
 
-\item{g}{The number of components in the mixture model.}
+\item{g}{The number of components in the mixture model, or 'BIC' for automatic selection using minimum BIC. 
+It is also possible to give a list of candidate g values.}
+
+\item{maxg}{The maxium number of components in the mixture model if using 'BIC' for automatic selection.}
 
 \item{ncov}{A small integer indicating the type of covariance structure of 
 item b .}

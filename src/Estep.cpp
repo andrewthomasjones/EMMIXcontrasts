@@ -65,6 +65,7 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   arma::vec s_tau = arma::zeros<arma::vec>(g);
   arma::vec pi = arma::ones<arma::vec>(g);
   arma::mat tau(g,n, arma::fill::zeros);
+  arma::rowvec tauSum = arma::zeros<arma::rowvec>(g);
   arma::mat tau2(g,n, arma::fill::zeros);
   
   //arma::mat tau = mtauk;
@@ -77,12 +78,18 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
     tau.row(i)  = pro.at(i) * dens.t();
   }
   
+  tauSum = arma::sum(tau,0);
   
-  double LL = arma::accu(arma::log(arma::sum(tau,0)));
+  double LL = arma::accu(arma::log(tauSum));
+  
+
+  tau2 = tau.each_row() / tauSum;
+  
+  
+  tau2.replace(arma::datum::nan, 0.0);
+  
  
-
-  tau2 = tau.each_row() / arma::sum(tau,0);
-
+ 
   
   
   s_tau = sum(tau2,1);
@@ -92,7 +99,7 @@ Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, ar
   
   Rcpp::List ret = List::create(
     Named("tau")= tau2.t(),
-    Named("loglik")= LL,
+        Named("loglik")= LL,
     Named("pro")= export_vec(pi)
   );
   

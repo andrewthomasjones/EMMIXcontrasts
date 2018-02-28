@@ -17,6 +17,10 @@ vignette: >
 
 ## Pre-processing
 
+### Gene Expression Data
+
+### RNASeq Data
+
 ## Choosing the number of groups, *g*
 
 ## Scores
@@ -36,3 +40,5 @@ vignette: >
 ## Golden Spike
 
 ## Alon Cancer data
+
+## RNASeq Data

@@ -35,7 +35,7 @@ NULL
 {
     #calls C++ code
     ret<-estep(dat, n, m, g, pro, mu, sigma)
-    return(ret)        
+        return(ret)        
 }
 
 #Sets up matrix M
@@ -486,7 +486,9 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'with the specified EMMIX-WIRE model as in [1].
 #'@param dat The dataset,  an n by m numeric matrix, 
 #'where n is number of observations and m the dimension of data.
-#'@param g The number of components in the mixture model.
+#'@param g The number of components in the mixture model, or 'BIC' for automatic selection using minimum BIC. 
+#'It is also possible to give a list of candidate g values. 
+#'@param maxg The maxium number of components in the mixture model if using 'BIC' for automatic selection.
 #'@param ncov A small integer indicating the type of covariance structure of 
 #'item b .
 #'@param nvcov 0 or 1,  indicating whether or not to include
@@ -614,7 +616,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 
 
 #'@export
-emmixwire<-function(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0, 
+emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0, 
                     X = NULL, W = NULL, U = NULL, V = NULL, 
                     cluster = NULL, init = NULL, debug = FALSE, 
                     itmax = 1000, epsilon = 1e-5, nkmeans = 5, nrandom = 0)
@@ -670,70 +672,94 @@ emmixwire<-function(dat, g = 1, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0,
     #  some variables
     #
     tuv <- 0.2
-    # initialize the sigma_b and sigma_c
-    sigma.b<-array(0, c(qb, qb, g))
-    for(h in seq_len(g)){
-        if(qb > 1){
-            diag(sigma.b[, , h])<-rep(tuv, qb)
-        }else{
-            sigma.b[1, 1, h] <- tuv
-        }
-    }
-    sigma.c<-rep(tuv, g)
     
+    suppressWarnings(if(g=='BIC'){
+        glist<-1:maxg
+    }else{
+        glist<-g
+    })
+    
+    gc<-0
+    BICLIST<-list()
     message("initializing ...")
-    #part 1: initial values
-    if(!is.null(init)){
-        found<-init
-    } else {
+    for(g in glist){
+        gc<-gc+1    
+        # initialize the sigma_b and sigma_c
+        sigma.b<-array(0, c(qb, qb, g))
+        for(h in seq_len(g)){
+            if(qb > 1){
+                diag(sigma.b[, , h])<-rep(tuv, qb)
+            }else{
+                sigma.b[1, 1, h] <- tuv
+            }
+        }
+        sigma.c<-rep(tuv, g)
+        
+        
+        #part 1: initial values
+        if(!is.null(init)){
+            found<-init
+        } else {
+    
+            if(is.null(cluster))
+            {
+                found <- wire.init.fit(dat, X, qe, n, m, g, nkmeans, nrandom)
+            }else{
+                found <- wire.init.reg(dat, X, qe, n, m, g, cluster)
+            }
+        }
+        
+        if(length(found)<4){
+            stop("Inital values not found.")
+        }
+        
+        #part 2: call the main estimate procedure
+        message(paste0("Fitting mixture model with " , g, " components using EM algorithm ..."))
+        ret<-.fit.emmix.wire(dat, X, W, U, V, 
+                    found$pro, found$beta, found$sigma.e,
+                    sigma.b, sigma.c, 
+                    n, m, g, nb, qb, qc, qe, 
+                    debug, ncov, nvcov, itmax, epsilon)
+        
+        
+        
+        if(qb == m && (ncov == 4 || ncov == 2)){
+            tmp <- array(0, c(m, g))
+            for(h in seq_len(g)){
+                tmp[, h] <- diag(ret$sigma.b[, , h])
+            }
+            ret$sigma.b <- tmp
+        }
+        
+        if(ncov == 5){
+            tmp <- rep(0, g)
+            for(h in seq_len(g)){
+                tmp[h] <- diag(ret$sigma.b[, , h])[1]
+            }
+            ret$sigma.b <- tmp
+        }
+        
+        ret$g<-g
+        ret$m<-m
+        ret$nb<-nb
+        ret$X<-X
+        ret$W<-W
+        ret$U<-U
+        ret$V<-V
+        
+        BICLIST[[gc]]<-ret
+    }
+    
 
-        if(is.null(cluster))
-        {
-            found <- wire.init.fit(dat, X, qe, n, m, g, nkmeans, nrandom)
-        }else{
-            found <- wire.init.reg(dat, X, qe, n, m, g, cluster)
-        }
+    BICvals <- unlist(lapply(BICLIST, function (x) x['BIC']))
+    best<-which.min(BICvals)
+    
+    if(length(BICLIST)>1 | debug ){
+        message(paste0("Optimal fit with ", BICLIST[[best]]$g, " clusters chosen. BIC = ",BICLIST[[best]]$BIC, "."))
     }
-    
-    if(length(found)<4){
-        stop("Inital values not found.")
-    }
-    
-    #part 2: call the main estimate procedure
-    message("Fitting mixture model with EM algorithm ...")
-    ret<-.fit.emmix.wire(dat, X, W, U, V, 
-                found$pro, found$beta, found$sigma.e,
-                sigma.b, sigma.c, 
-                n, m, g, nb, qb, qc, qe, 
-                debug, ncov, nvcov, itmax, epsilon)
-    
-    message(" done.")
-    
-    if(qb == m && (ncov == 4 || ncov == 2)){
-        tmp <- array(0, c(m, g))
-        for(h in seq_len(g)){
-            tmp[, h] <- diag(ret$sigma.b[, , h])
-        }
-        ret$sigma.b <- tmp
-    }
-    
-    if(ncov == 5){
-        tmp <- rep(0, g)
-        for(h in seq_len(g)){
-            tmp[h] <- diag(ret$sigma.b[, , h])[1]
-        }
-        ret$sigma.b <- tmp
-    }
-    
-    ret$g<-g
-    ret$m<-m
-    ret$nb<-nb
-    ret$X<-X
-    ret$W<-W
-    ret$U<-U
-    ret$V<-V
-    
-    return(ret)
+    fit<-BICLIST[[best]]
+    message("Done.")
+    return(fit)
 }
 
 #'@title Calculate the lambda values
