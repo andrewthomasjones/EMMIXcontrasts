@@ -38,7 +38,20 @@ vignette: >
 # Case Studies
 
 ## Golden Spike
+add some download code
+http://halfonlab.ccr.buffalo.edu/spike/spikedownloads.html
 
 ## Alon Cancer data
 
+```{r, recho=F, cache=TRUE}
+library(Biobase)
+library(vsn)
+data(colonCA, package = 'colonCA')
+alon_data<-(Biobase::exprs(vsn::vsn2(colonCA)))
+```
+
 ## RNASeq Data
+```{r, echo=F, cache=TRUE}
+library(fission)
+data("fission")
+```
