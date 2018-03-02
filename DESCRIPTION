@@ -18,7 +18,12 @@ Depends:
   R (>= 3.4.0)
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    repmis,
+    limma,
+    ggplot2,
+    reshape2,
+    fission
 VignetteBuilder: knitr
 biocViews: Classification,
     GeneExpression,
