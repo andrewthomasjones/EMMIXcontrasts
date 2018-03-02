@@ -3,6 +3,7 @@ title: "EMMIXContrasts: an Introduction"
 author: "Andrew Thomas Jones"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: bibliography.bib
 vignette: >
     %\VignetteIndexEntry{Vignette Title}
     %\VignetteEngine{knitr::rmarkdown}
@@ -13,37 +14,91 @@ vignette: >
 
 ## Citation
 
-# Basic Workflow
+@emmix2014
 
+
+# Basic Workflow
+```{r, recho=F, cache=TRUE}
+library(EMMIXcontrasts3)
+library(Biobase)
+set.seed(123)
+```
 ## Pre-processing
 
 ### Gene Expression Data
 
 ### RNASeq Data
+Voom
+@law2014voom
+@limma2015
 
 ## Choosing the number of groups, *g*
 
+Manually or via BIC
+
+
+
 ## Scores
+
+can be used to rank genes with out p values if desired
 
 ## Null-Distribution
 
+permuations
+
 ## *p*-values
+
+from the permuations
 
 # Experimental design
 
+allows for compliacted set ups
+
 ## Time
 
+see example in @emmix2014  and third case study in this document
+
 ## Blocking
+
+
 
 # Case Studies
 
 ## Golden Spike
-add some download code
-http://halfonlab.ccr.buffalo.edu/spike/spikedownloads.html
+@zhu2010preferred
+```{r, echo=F, cache=TRUE}
+library(repmis)
+source_data("https://github.com/andrewthomasjones/goldenspikeData/blob/master/goldenspike.Rdata?raw=true")
+```
+
+```{r, echo=F,include=FALSE, cache=TRUE}
+#add extra column to goldenspike make clearer which are null genes
+goldenspike$isNull<-abs(goldenspike$fold)==1
+gold2<-as.matrix(goldenspike[,1:6])
+
+Emmix<-emmixwire(gold2,g='BIC', maxg=20, ncov=3,nvcov=1,n1=3,n2=3, debug=0,itmax=100,epsilon=1e-4)
+M<-nrow(gold2)
+scores<-abs(scores.wire(Emmix))
+pTrue<-cumsum(goldenspike$isNull[order(scores, decreasing = T)])/(1:M)
+```
+
+
+```{r, fig.show='hold', cache=T}
+library(ggplot2)
+library(reshape2)
+ combined <- data.frame(n = 1:M, pTrue = pTrue)
+ combined2<-melt(combined, id='n')
+ combined3<-subset(combined2, n<=1000)
+ p<-ggplot(data=combined3, aes(x=n, y=value, colour=variable)) + geom_line()
+ p<-p+scale_colour_discrete(guide=FALSE)+ scale_x_continuous(name = "Gene Rank")+ scale_y_continuous(name = "FPR")+theme_classic() 
+ p<-p+ggtitle(paste("Golden Spike - false positive rate among top ranked genes"))
+ print(p)
+```
+
 
 ## Alon Cancer data
-
-```{r, recho=F, cache=TRUE}
+@alon1999broad
+```{r, echo=F, cache=TRUE}
 library(Biobase)
 library(vsn)
 data(colonCA, package = 'colonCA')
@@ -51,7 +106,9 @@ alon_data<-(Biobase::exprs(vsn::vsn2(colonCA)))
 ```
 
 ## RNASeq Data
+@fission2014
 ```{r, echo=F, cache=TRUE}
 library(fission)
 data("fission")
 ```
+# References
