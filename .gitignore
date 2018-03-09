@@ -6,4 +6,4 @@ src/*.o
 src/*.so
 src/*.dll
 inst/doc
-vignettes/EMMIXContrasts-An-Introduction_cache/*
+vignettes/EMMIXContrasts-An-Introduction_cache
