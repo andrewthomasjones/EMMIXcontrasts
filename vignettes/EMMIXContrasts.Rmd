@@ -1,0 +1,19 @@
+---
+title: "EMMIXcontrasts"
+author: "Andrew Jones"
+date: "19/03/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+```
+
+## Installing EMMIXContrasts
+```{r}
+# install.packages("devtools")
+devtools::install_github("andrewthomasjones/EMMIXContrasts")
+library(EMMIXContrasts2)
+```

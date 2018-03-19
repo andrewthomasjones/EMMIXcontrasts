@@ -1,4 +1,4 @@
-Package: EMMIXcontrasts3
+Package: EMMIXcontrasts2
 Title: Contrasts in Mixed Effects for EMMIX Model with Random Effects
 Description: For forming contrasts in the mixed effects for mixtures of linear mixed models fitted to the gene profiles. 
 Version: 0.99.0
@@ -23,7 +23,9 @@ Suggests: knitr,
     limma,
     ggplot2,
     reshape2,
-    fission
+    fission,
+    seqc,
+    erccdashboard
 VignetteBuilder: knitr
 biocViews: Classification,
     GeneExpression,
