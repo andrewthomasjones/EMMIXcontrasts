@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // estep
 Rcpp::List estep(const arma::mat& dat, int n, int m, double g, arma::vec pro, arma::mat mu, arma::cube sigma);
-RcppExport SEXP _EMMIXcontrasts3_estep(SEXP datSEXP, SEXP nSEXP, SEXP mSEXP, SEXP gSEXP, SEXP proSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
+RcppExport SEXP _EMMIXcontrasts2_estep(SEXP datSEXP, SEXP nSEXP, SEXP mSEXP, SEXP gSEXP, SEXP proSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,11 +25,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_EMMIXcontrasts3_estep", (DL_FUNC) &_EMMIXcontrasts3_estep, 7},
+    {"_EMMIXcontrasts2_estep", (DL_FUNC) &_EMMIXcontrasts2_estep, 7},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_EMMIXcontrasts3(DllInfo *dll) {
+RcppExport void R_init_EMMIXcontrasts2(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

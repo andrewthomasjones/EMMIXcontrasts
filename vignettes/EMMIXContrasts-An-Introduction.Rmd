@@ -14,10 +14,10 @@ vignette: >
 
 # Basic Workflow
 
-```{r, recho=F, cache=TRUE}
-library(EMMIXcontrasts3)
+```{r, echo=F, cache=TRUE}
+library(EMMIXcontrasts2)
 library(Biobase)
-
+knitr::opts_chunk$set(fig.width=8, fig.height=6) 
 set.seed(123)
 ```
 ## Pre-processing
@@ -67,6 +67,14 @@ see example in @emmix2014  and third case study in this document
 library(repmis)
 source_data("https://github.com/andrewthomasjones/goldenspikeData/blob/master/goldenspike.Rdata?raw=true")
 ```
+## SEQC
+
+@su2014comprehensive
+```{r, echo=F, cache=TRUE}
+library(erccdashboard)
+data(SEQC.Example)
+```
+
 
 ```{r, echo=F,include=FALSE, cache=TRUE}
 #add extra column to goldenspike make clearer which are null genes
@@ -80,7 +88,7 @@ pTrue<-cumsum(goldenspike$isNull[order(scores, decreasing = T)])/(1:M)
 ```
 
 
-```{r, fig.show='hold', cache=T}
+```{r, echo=F, fig.show='hold', cache=T}
 library(ggplot2)
 library(reshape2)
  combined <- data.frame(n = 1:M, pTrue = pTrue)

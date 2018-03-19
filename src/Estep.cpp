@@ -2,7 +2,7 @@
 // [[Rcpp::plugins(cpp11)]]
 
 //'@importFrom Rcpp sourceCpp
-//'@useDynLib EMMIXcontrasts3
+//'@useDynLib EMMIXcontrasts2
 
 
 #include <vector>

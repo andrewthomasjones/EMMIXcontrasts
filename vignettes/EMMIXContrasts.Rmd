@@ -1,0 +1,56 @@
+---
+title: "EMMIXcontrasts"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=8, fig.height=6) 
+set.seed(123)
+```
+
+## Installing EMMIXContrasts
+In order to install the latest version of EMMIXContrasts, you will need to run the following R code.
+```{r, eval=FALSE}
+#if package devtools is not already installed:
+install.packages("devtools")
+#download the latest version of EMMIXContrasts:
+devtools::install_github("andrewthomasjones/EMMIXContrasts")
+#load up EMMIXContrasts. (Note the 2 at the end of the package name)
+library(EMMIXContrasts2)
+```
+
+## Using EMMIXContrasts
+```{r, echo=F,include=FALSE, cache=TRUE}
+library(repmis)
+source_data("https://github.com/andrewthomasjones/goldenspikeData/blob/master/goldenspike.Rdata?raw=true")
+#add extra column to goldenspike make clearer which are null genes
+goldenspike$isNull<-abs(goldenspike$fold)==1
+gold2<-as.matrix(goldenspike[,1:6])
+
+Emmix<-emmixwire(gold2,g='BIC', maxg=20, ncov=3,nvcov=1,n1=3,n2=3, debug=0,itmax=100,epsilon=1e-4)
+M<-nrow(gold2)
+scores<-abs(scores.wire(Emmix))
+pTrue<-cumsum(goldenspike$isNull[order(scores, decreasing = T)])/(1:M)
+```
+
+Once we have the gene ranks we can produce a plot of the false positive rate among the top ranked genes.
+
+```{r, echo=T, fig.show='hold', cache=T}
+ #may need to install this package first
+ library(reshape2)
+ #tidy up the data for use with GGPLOT
+ combined <- data.frame(n = 1:M, pTrue = pTrue)
+ combined2 <- melt(combined, id='n')
+ #take top 1000 genes only
+ combined3 <- subset(combined2, n<=1000)
+ 
+ #may also need to install this package
+ library(ggplot2)
+ p<-ggplot(data=combined3, aes(x=n, y=value, colour=variable)) + geom_line()
+ p<-p+scale_colour_discrete(guide=FALSE)+ scale_x_continuous(name = "Gene Rank")+   scale_y_continuous(name = "FPR")+theme_classic() 
+ p<-p+ggtitle(paste("Golden Spike - false positive rate among top ranked genes"))
+ print(p)
+```
+
+
