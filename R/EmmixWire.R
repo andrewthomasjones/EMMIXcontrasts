@@ -1,6 +1,6 @@
 #imports
 #'@importFrom stats coef kmeans lm resid
-#'@importFrom MASS ginv
+#'@importFrom MASS ginv  
 NULL
 
 #' EMMIXcontrasts: 

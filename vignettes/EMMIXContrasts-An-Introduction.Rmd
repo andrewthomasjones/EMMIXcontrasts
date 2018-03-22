@@ -65,35 +65,33 @@ see example in @emmix2014  and third case study in this document
 @zhu2010preferred
 ```{r, echo=FALSE, cache=TRUE}
 library(repmis)
-source_data("https://github.com/andrewthomasjones/goldenspikeData/blob/master/
-            goldenspike.Rdata?raw=true")
+repmis::source_data("https://github.com/andrewthomasjones/goldenspikeData/blob/master/goldenspike.Rdata?raw=true")
 ```
 ## SEQC
 
 @su2014comprehensive
 ```{r, echo=FALSE, cache=TRUE}
-library(erccdashboard)
-data(SEQC.Example)
+#library(erccdashboard)
+#data(SEQC.Example)
 ```
 
 
 ```{r, echo=FALSE,include=FALSE, cache=TRUE}
 #add extra column to goldenspike make clearer which are null genes
 goldenspike$isNull<-abs(goldenspike$fold)==1
-gold2<-as.matrix(goldenspike[,seq_along(6)])
+gold2<-as.matrix(goldenspike[,seq_len(6)])
 
-Emmix<-emmixwire(gold2,g='BIC', maxg=20, ncov=3,nvcov=1,n1=3,n2=3, debug=0,itmax=100,epsilon=1e-4)
+Emmix<-emmixwire(gold2,g='BIC', maxg=3, ncov=3,nvcov=3,n1=3,n2=3, debug=0,itmax=100,epsilon=1e-4)
 M<-nrow(gold2)
 scores<-abs(scores.wire(Emmix))
-pTrue<-cumsum(goldenspike$isNull[order(scores, decreasing = TRUE)])/
-    (seq_along(M))
+pTrue<-cumsum(goldenspike$isNull[order(scores, decreasing = TRUE)])/(seq_len(M))
 ```
 
 
 ```{r, echo=FALSE, fig.show='hold', cache=TRUE}
 library(ggplot2)
 library(reshape2)
-combined <- data.frame(n = seq_along(M), pTrue = pTrue)
+combined <- data.frame(n = seq_len(M), pTrue = pTrue)
 combined2<-melt(combined, id='n')
 combined3<-subset(combined2, n<=1000)
 p<-ggplot(data=combined3, aes(x=n, y=value, colour=variable)) + geom_line()
@@ -107,8 +105,9 @@ print(p)
 @alon1999broad
 ```{r, echo=FALSE, cache=TRUE}
 library(vsn)
+library(colonCA)
 data(colonCA, package = 'colonCA')
-alon_data<-(Biobase::exprs(vsn::vsn2(colonCA)))
+alon_data<-(exprs(vsn2(colonCA)))
 ```
 
 ## RNASeq Data
