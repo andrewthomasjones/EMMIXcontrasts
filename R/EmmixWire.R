@@ -331,7 +331,7 @@ wire.init.km<-function(dat, X, qe, n, m, g)
     cluster<-rep(1, n)        
     if(g > 1){
         cluster<- suppressWarnings(kmeans(dat, g, nstart=5, 
-                                          algorithm="Lloyd", iter.max = 10)$cluster)
+        algorithm="Lloyd", iter.max = 10)$cluster)
     }
     wire.init.reg(dat, X, qe, n, m, g, cluster)
 }
@@ -486,9 +486,11 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'with the specified EMMIX-WIRE model as in [1].
 #'@param dat The dataset,  an n by m numeric matrix, 
 #'where n is number of observations and m the dimension of data.
-#'@param g The number of components in the mixture model, or 'BIC' for automatic selection using minimum BIC. 
+#'@param g The number of components in the mixture model, 
+#'or 'BIC' for automatic selection using minimum BIC. 
 #'It is also possible to give a list of candidate g values. 
-#'@param maxg The maxium number of components in the mixture model if using 'BIC' for automatic selection.
+#'@param maxg The maxium number of components in the mixture 
+#'model if using 'BIC' for automatic selection.
 #'@param ncov A small integer indicating the type of covariance structure of 
 #'item b .
 #'@param nvcov 0 or 1,  indicating whether or not to include
@@ -598,7 +600,7 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'wj <- scores.wire(ret)
 #'names(wj) <- names(map)
 #'###top 1000 genes
-#'wire.1000 <- names(map)[order(abs(wj), decreasing=TRUE)][1:1000]
+#'wire.1000 <- names(map)[order(abs(wj), decreasing=TRUE)][seq_len(1000)]
 #'###the number of false non-nulls in the top 1000 genes 
 #'sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #'#119
@@ -607,16 +609,15 @@ wire.init.reg<-function(dat, X, qe, n, m, g, cluster)
 #'### the null distribution of W_j
 #'wj0 <- wj2.permuted(y, ret, nB=19)
 #'pv  <- pvalue.wire(wj, wj0)
-#'wire.1000 <- names(map)[order(pv, decreasing=0)][1:1000]
+#'wire.1000 <- names(map)[order(pv, decreasing=0)][seq_len(1000)]
 #'###the number of false non-nulls in the top 1000 genes 
 #'sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #'#119
 #'hist(pv, 50)
 #'
-
-
 #'@export
-emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0, n1 = 0, n2 = 0, n3 = 0, 
+emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0,
+                    n1 = 0, n2 = 0, n3 = 0, 
                     X = NULL, W = NULL, U = NULL, V = NULL, 
                     cluster = NULL, init = NULL, debug = FALSE, 
                     itmax = 1000, epsilon = 1e-5, nkmeans = 5, nrandom = 0)
@@ -674,7 +675,7 @@ emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0, n1 = 0, n2 = 0
     tuv <- 0.2
     
     suppressWarnings(if(g=='BIC'){
-        glist<-1:maxg
+        glist<-seq_len(maxg)
     }else{
         glist<-g
     })
@@ -714,7 +715,8 @@ emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0, n1 = 0, n2 = 0
         }
         
         #part 2: call the main estimate procedure
-        message(paste0("Fitting mixture model with " , g, " components using EM algorithm ..."))
+        message(paste0("Fitting mixture model with " , g,
+            " components using EM algorithm ..."))
         ret<-.fit.emmix.wire(dat, X, W, U, V, 
                     found$pro, found$beta, found$sigma.e,
                     sigma.b, sigma.c, 
@@ -755,7 +757,8 @@ emmixwire<-function(dat, g = 'BIC', maxg=10, ncov = 3, nvcov = 0, n1 = 0, n2 = 0
     best<-which.min(BICvals)
     
     if(length(BICLIST)>1 | debug ){
-        message(paste0("Optimal fit with ", BICLIST[[best]]$g, " clusters chosen. BIC = ",BICLIST[[best]]$BIC, "."))
+        message(paste0("Optimal fit with ", BICLIST[[best]]$g, 
+        " clusters chosen. BIC = ",BICLIST[[best]]$BIC, "."))
     }
     fit<-BICLIST[[best]]
     message("Done.")
@@ -873,7 +876,7 @@ eq8.wire <-function(m, g, nb, X, W, U, V,
 #'@examples
 #'
 #'data(hedenlc)
-#'hedenlc<-hedenlc[1:100,] #for speed
+#'hedenlc<-hedenlc[seq_len(100),] #for speed
 #'set.seed(123456)
 #'obj<-emmixwire(hedenlc, g=5, ncov=3, nvcov=1, n1=7, n2=8, 
 #'      debug=1, itmax=20, epsilon=1e-4) 
@@ -956,7 +959,7 @@ NULL
 #'@seealso \code{\link{emmixwire}} \code{\link{scores.wire}}.
 #'@examples
 #'data(hedenlc)
-#'dat<-hedenlc[1:100,] #for speed
+#'dat<-hedenlc[seq_len(100),] #for speed
 #'set.seed(123456)
 #'
 #'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8,
@@ -1083,7 +1086,7 @@ NULL
 #'
 #'
 #'data(hedenlc)
-#'dat<-hedenlc[1:100,] #for speed
+#'dat<-hedenlc[seq_len(100),] #for speed
 #'
 #'set.seed(12345)
 #'ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8, 

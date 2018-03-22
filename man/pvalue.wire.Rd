@@ -27,7 +27,7 @@ contrast in \code{\link{scores.wire}}.
 
 
 data(hedenlc)
-dat<-hedenlc[1:100,] #for speed
+dat<-hedenlc[seq_len(100),] #for speed
 
 set.seed(12345)
 ret <-emmixwire(dat, g=3, ncov=3, nvcov=1, n1=7, n2=8, 

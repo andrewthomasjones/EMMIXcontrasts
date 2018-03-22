@@ -13,10 +13,12 @@ emmixwire(dat, g = "BIC", maxg = 10, ncov = 3, nvcov = 0, n1 = 0,
 \item{dat}{The dataset,  an n by m numeric matrix, 
 where n is number of observations and m the dimension of data.}
 
-\item{g}{The number of components in the mixture model, or 'BIC' for automatic selection using minimum BIC. 
+\item{g}{The number of components in the mixture model, 
+or 'BIC' for automatic selection using minimum BIC. 
 It is also possible to give a list of candidate g values.}
 
-\item{maxg}{The maxium number of components in the mixture model if using 'BIC' for automatic selection.}
+\item{maxg}{The maxium number of components in the mixture 
+model if using 'BIC' for automatic selection.}
 
 \item{ncov}{A small integer indicating the type of covariance structure of 
 item b .}
@@ -144,7 +146,7 @@ ret <- emmixwire(y, g=3, ncov=3, nvcov=1, n1=3, n2=3, n3=0,
 wj <- scores.wire(ret)
 names(wj) <- names(map)
 ###top 1000 genes
-wire.1000 <- names(map)[order(abs(wj), decreasing=TRUE)][1:1000]
+wire.1000 <- names(map)[order(abs(wj), decreasing=TRUE)][seq_len(1000)]
 ###the number of false non-nulls in the top 1000 genes 
 sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #119
@@ -153,7 +155,7 @@ sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 ### the null distribution of W_j
 wj0 <- wj2.permuted(y, ret, nB=19)
 pv  <- pvalue.wire(wj, wj0)
-wire.1000 <- names(map)[order(pv, decreasing=0)][1:1000]
+wire.1000 <- names(map)[order(pv, decreasing=0)][seq_len(1000)]
 ###the number of false non-nulls in the top 1000 genes 
 sum(map[wire.1000] == 1) + sum( map[wire.1000] == -1)
 #119
