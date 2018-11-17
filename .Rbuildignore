@@ -3,3 +3,6 @@
 cran-comments.md
 .gitignore
 ^.*\.jpeg$
+^\.travis\.yml$
+^README\.Rmd$
+^README-.*\.png$
