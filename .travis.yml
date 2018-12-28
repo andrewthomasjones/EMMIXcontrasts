@@ -1,5 +1,23 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
 language: R
 sudo: false
 cache: packages
+
+install:
+    - ./travis-tool.sh install_deps
+    - ./travis-tool.sh install_bioc_deps
+    - ./travis-tool.sh install_bioc Biobase
+    - ./travis-tool.sh install_bioc repmis
+    - ./travis-tool.sh install_bioc vsn
+    - ./travis-tool.sh install_bioc colonCA
+    - ./travis-tool.sh install_bioc fission
+    - ./travis-tool.sh install_r ggplot2
+    - ./travis-tool.sh install_r reshape2
+
+env:
+  global:
+     - BIOC_USE_DEVEL="FALSE"
+     - R_BUILD_ARGS=" " 
+     - R_CHECK_ARGS="--as-cran"
+     - BOOTSTRAP_LATEX="1"
+
