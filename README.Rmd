@@ -14,10 +14,10 @@ knitr::opts_chunk$set(
 
 [![Travis-CI Build Status](https://travis-ci.org/andrewthomasjones/EMMIXcontrasts.svg?branch=master)](https://travis-ci.org/andrewthomasjones/EMMIXcontrasts)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/EMMIXcontrasts2)](https://cran.r-project.org/package=EMMIXcontrasts2)
-
+[![DOI](https://zenodo.org/badge/xxxxx.svg)](https://zenodo.org/badge/latestdoi/xxxxx)
 # EMMIXcontrasts2
 
-The goal of EMMIXcontrasts2 is to ...
+EMMIXcontrasts2 is an upgraded version of 
 
 ## Installation
 
