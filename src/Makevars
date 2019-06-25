@@ -1,3 +1,2 @@
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-CFLAGS=-Weverything -O0 -g CXXFLAGS=-Weverything -O0 -g 
-FFLAGS=-Wall -Wextra -pedantic -O0 -g
+CXX_STD = CXX11
+PKG_LIBS =  $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)

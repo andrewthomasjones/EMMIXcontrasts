@@ -1,6 +1,8 @@
-#EMMIXContrasts2 0.99.1
-Features
+#EMMIXContrasts2 0.99.2
+-Support for RNASeq Data
+-Automatic group number selection using BIC
+-Improved documentation and examples
 
 
 #EMMIXContrasts2 0.1.0
-OLD VERSIONS HERE
+Adapation of previous package EMMIXContrasts.

@@ -1,12 +1,14 @@
 Package: EMMIXcontrasts2
 Type: Package
 Title: Contrasts in Mixed Effects for EMMIX Model with Random Effects
-Version: 0.99.1
+Version: 0.99.2
 Date: 2019-05-06
 Author: Andrew Jones, Angus Ng, Geoff McLachlan, Kui Wang
-Description: For forming contrasts in the mixed effects for mixtures of linear mixed models fitted to the gene profiles. 
+Description: For forming contrasts in the mixed effects for mixtures of linear mixed models fitted to the gene profiles as in Ng, et al. (2015) <doi:10.1093/biostatistics/kxu028>. 
 Maintainer: Andrew Jones <andrewthomasjones@gmail.com>
 License: GPL-3
+Encoding: UTF-8
+LazyData: true
 LazyLoad: yes
 NeedsCompilation: yes
 RoxygenNote: 6.1.1
