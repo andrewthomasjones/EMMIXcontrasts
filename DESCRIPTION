@@ -12,9 +12,11 @@ LazyData: true
 LazyLoad: yes
 NeedsCompilation: yes
 RoxygenNote: 6.1.1
+biocViews:
 Imports: Rcpp (>= 0.12.12),
     MASS,
-    stats
+    stats,
+    limma
 LinkingTo: Rcpp,
     RcppArmadillo
 SystemRequirements: C++11
